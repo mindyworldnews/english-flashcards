@@ -431,20 +431,15 @@
       transform: translateY(-2px);
       box-shadow: 3px 4px 0 var(--cream-dark);
     }
-    .word-tile-num {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
     .word-tile-en {
       font-family: Georgia, "Times New Roman", serif;
-      font-size: 1.1rem;
+      font-size: 1.25rem;
       color: var(--text);
-      margin-bottom: 4px;
+      margin-bottom: 5px;
       line-height: 1.3;
     }
     .word-tile-zh {
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       color: var(--text-muted);
     }
   </style>
@@ -3286,7 +3281,6 @@ function openUnit(unitIndex) {
     const tile = document.createElement('div');
     tile.className = 'word-tile';
     tile.innerHTML = `
-      <div class="word-tile-num">${i + 1}</div>
       <div class="word-tile-en">${word.english}</div>
       <div class="word-tile-zh">${word.chinese}</div>
     `;
