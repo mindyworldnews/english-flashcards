@@ -415,11 +415,8 @@
     }
     .word-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr;
       gap: 10px;
-    }
-    @media (max-width: 400px) {
-      .word-grid { grid-template-columns: 1fr; }
     }
     .word-tile {
       background: var(--cream);
@@ -435,19 +432,19 @@
       box-shadow: 3px 4px 0 var(--cream-dark);
     }
     .word-tile-num {
-      font-size: 0.62rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       margin-bottom: 4px;
     }
     .word-tile-en {
       font-family: Georgia, "Times New Roman", serif;
-      font-size: 0.98rem;
+      font-size: 1.1rem;
       color: var(--text);
-      margin-bottom: 3px;
+      margin-bottom: 4px;
       line-height: 1.3;
     }
     .word-tile-zh {
-      font-size: 0.75rem;
+      font-size: 0.88rem;
       color: var(--text-muted);
     }
   </style>
