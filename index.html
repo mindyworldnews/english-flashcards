@@ -1,0 +1,3418 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>英語韌性課 單字卡</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #f7f2e4;
+      --cream-dark: #ede6d0;
+      --gold: #8b7a4a;
+      --gold-light: #b3a070;
+      --text: #2c2416;
+      --text-mid: #6b5e3e;
+      --text-muted: #a09070;
+      --divider: #d4c8a0;
+      --tag-bg: #e8e0c8;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background: #e8e0cc;
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── 版頭 ── */
+    .header {
+      background: #3a2e18;
+      color: #f7f2e4;
+      padding: 18px 24px;
+    }
+    .header-title {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+    .header-sub {
+      font-size: 0.78rem;
+      color: var(--gold-light);
+      margin-top: 2px;
+    }
+
+    /* ── 單元列表 ── */
+    #unit-list {
+      max-width: 680px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    #unit-list h2 {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .unit-card {
+      background: var(--cream);
+      border-left: 4px solid var(--gold);
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 3px 3px 0 var(--cream-dark);
+      transition: transform 0.12s, box-shadow 0.12s;
+    }
+    .unit-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 4px 5px 0 var(--cream-dark);
+    }
+    .unit-card-name {
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .unit-card-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+    .unit-card-count {
+      font-size: 0.75rem;
+      color: var(--gold);
+      font-weight: 600;
+      white-space: nowrap;
+      margin-left: 16px;
+    }
+
+    /* ── 單字卡區 ── */
+    #flashcard-view {
+      display: none;
+      max-width: 680px;
+      margin: 32px auto;
+      padding: 0 20px 60px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0;
+      margin-bottom: 18px;
+    }
+    .back-btn:hover { color: var(--text); }
+
+    .unit-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .unit-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* 進度 */
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .progress-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .progress-bar {
+      height: 3px;
+      background: var(--divider);
+      border-radius: 2px;
+      margin-bottom: 22px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--gold);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    /* ── 翻卡 ── */
+    .card-stack {
+      position: relative;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    /* 堆疊紙張效果 */
+    .card-stack::before {
+      content: '';
+      position: absolute;
+      inset: 6px -4px -8px 4px;
+      background: #ddd4b8;
+      border-left: 4px solid #a09060;
+      border-radius: 10px;
+      z-index: 0;
+    }
+    .card-stack::after {
+      content: '';
+      position: absolute;
+      inset: 3px -2px -4px 2px;
+      background: #e8e0c4;
+      border-left: 4px solid #a8986a;
+      border-radius: 10px;
+      z-index: 1;
+    }
+    .card-scene {
+      width: 100%;
+      height: 300px;
+      perspective: 1200px;
+      position: relative;
+      z-index: 2;
+    }
+    @media (max-width: 500px) {
+      .card-scene { height: 340px; }
+    }
+    .card-flipper {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-stack.flipped .card-flipper {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      background: var(--cream);
+      border-left: 5px solid var(--gold);
+      border-radius: 10px;
+      padding: 28px 30px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 12px rgba(60,40,0,0.10);
+    }
+    .card-back {
+      transform: rotateY(180deg);
+      overflow-y: auto;
+    }
+
+    /* VOCAB 標籤 */
+    .vocab-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: var(--gold);
+      color: var(--cream);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      padding: 5px 13px;
+      border-radius: 0 10px 0 8px;
+    }
+
+    /* 正面 */
+    .card-hint {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: right;
+      margin-bottom: auto;
+    }
+    .front-pos {
+      font-size: 0.78rem;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .front-english {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2.4rem;
+      font-weight: normal;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .front-hint-bottom {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+
+    /* 背面 */
+    .back-english {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.15rem;
+      color: var(--text-mid);
+      margin-bottom: 4px;
+    }
+    .back-usage {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .card-divider {
+      border: none;
+      border-top: 1px solid var(--divider);
+      margin-bottom: 14px;
+    }
+    .back-translation-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .back-pos {
+      font-size: 0.85rem;
+      color: var(--gold);
+    }
+    .back-chinese {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .back-example-label {
+      font-size: 0.82rem;
+      color: var(--gold);
+      font-weight: 600;
+      margin-right: 4px;
+    }
+    .back-example {
+      font-size: 0.87rem;
+      color: var(--text);
+      line-height: 1.65;
+      margin-bottom: 5px;
+    }
+    .back-example-trans {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .tags-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      margin-top: 10px;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .tag {
+      background: var(--tag-bg);
+      border-radius: 5px;
+      padding: 3px 9px;
+      font-size: 0.76rem;
+      color: var(--text-mid);
+    }
+
+    /* YouGlish 區塊 */
+    #youglish-section {
+      margin-top: 10px;
+      background: var(--cream);
+      border-left: 5px solid var(--gold);
+      border-radius: 10px;
+      padding: 18px 22px 22px;
+      box-shadow: 3px 3px 0 var(--cream-dark);
+    }
+    .youglish-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    /* 導航按鈕 */
+    .nav-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .nav-btn {
+      flex: 1;
+      padding: 13px;
+      border-radius: 8px;
+      border: 2px solid var(--divider);
+      background: var(--cream);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      color: var(--text-mid);
+    }
+    .nav-btn:hover:not(:disabled) {
+      border-color: var(--gold);
+      background: var(--gold);
+      color: var(--cream);
+    }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .flip-btn {
+      flex: 1.2;
+      padding: 13px;
+      border-radius: 8px;
+      border: none;
+      background: var(--gold);
+      color: var(--cream);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .flip-btn:hover { background: #6e6038; }
+
+    /* ── 聽發音按鈕 ── */
+    .listen-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 8px;
+      border: 2px dashed var(--divider);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .listen-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* ── 單字列表 ── */
+    #word-list {
+      display: none;
+      max-width: 680px;
+      margin: 32px auto;
+      padding: 0 20px 60px;
+    }
+    .word-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 400px) {
+      .word-grid { grid-template-columns: 1fr; }
+    }
+    .word-tile {
+      background: var(--cream);
+      border-left: 4px solid var(--gold);
+      border-radius: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 var(--cream-dark);
+      transition: transform 0.12s, box-shadow 0.12s;
+    }
+    .word-tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 3px 4px 0 var(--cream-dark);
+    }
+    .word-tile-num {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .word-tile-en {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 0.98rem;
+      color: var(--text);
+      margin-bottom: 3px;
+      line-height: 1.3;
+    }
+    .word-tile-zh {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-title">英語韌性課</div>
+  <div class="header-sub">單字卡練習</div>
+</header>
+
+<!-- 1. 單元列表 -->
+<div id="unit-list">
+  <h2>選擇單元</h2>
+  <div id="units-container"></div>
+</div>
+
+<!-- 2. 單字列表 -->
+<div id="word-list">
+  <button class="back-btn" onclick="showUnitList()">← 回到單元列表</button>
+  <div class="unit-title" id="wl-title"></div>
+  <div class="unit-desc" id="wl-desc" style="margin-bottom:20px;"></div>
+  <div class="word-grid" id="word-grid"></div>
+</div>
+
+<!-- 3. 單字卡 -->
+<div id="flashcard-view">
+  <button class="back-btn" onclick="showWordList()">← 回到單字列表</button>
+  <div class="unit-title" id="view-unit-title"></div>
+
+  <div class="progress-row">
+    <span class="progress-text" id="progress-text"></span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+
+  <div class="card-stack" id="card-stack" onclick="flipCard()">
+    <div class="card-scene">
+      <div class="card-flipper" id="card-flipper">
+
+        <div class="card-front">
+          <div class="vocab-badge">V O C A B</div>
+          <div class="card-hint">點擊翻面</div>
+          <div class="front-pos" id="card-pos"></div>
+          <div class="front-english" id="card-english"></div>
+          <div class="front-hint-bottom" id="front-hint-bottom"></div>
+        </div>
+
+        <div class="card-back">
+          <div class="vocab-badge">V O C A B</div>
+          <div class="back-english" id="back-english"></div>
+          <div class="back-usage" id="back-usage"></div>
+          <hr class="card-divider">
+          <div class="back-translation-row">
+            <span class="back-pos" id="back-pos"></span>
+            <span class="back-chinese" id="back-chinese"></span>
+          </div>
+          <div id="back-example-wrap">
+            <div class="back-example">
+              <span class="back-example-label">例：</span><span id="back-example"></span>
+            </div>
+            <div class="back-example-trans" id="back-example-trans"></div>
+          </div>
+          <div id="back-related-wrap">
+            <div class="tags-label">相關詞</div>
+            <div class="tags" id="back-related"></div>
+          </div>
+          <div id="back-collocations-wrap">
+            <div class="tags-label">常見搭配</div>
+            <div class="tags" id="back-collocations"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" id="prev-btn" onclick="prevCard()">← 上一張</button>
+    <button class="flip-btn" onclick="flipCard()">翻面</button>
+    <button class="nav-btn" id="next-btn" onclick="nextCard()">下一張 →</button>
+  </div>
+
+  <button class="listen-btn" id="listen-btn" onclick="loadYouGlish()">▶ 聽真實發音（YouGlish）</button>
+
+  <div id="youglish-section" style="display:none;">
+    <div class="youglish-label">真實發音 · YouGlish</div>
+    <div id="yg-widget"></div>
+  </div>
+</div>
+
+<script>
+const UNITS = [
+  {
+    "name": "L1",
+    "description": "",
+    "words": [
+      {
+        "english": "Population",
+        "chinese": "人口",
+        "usage_context": "法律上定義國家組成的四大要素之一",
+        "example_sentence": "Taiwan is facing a serious challenge as its total population continues to decline.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Territory",
+        "chinese": "領土",
+        "usage_context": "國家行使主權的地理範圍",
+        "example_sentence": "There are different political views on the official territory defined by the Constitution.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Sovereign states",
+        "chinese": "主權國家",
+        "usage_context": "擁有最高統治權且不受外國干預的政治實體",
+        "example_sentence": "Taiwan functions as a country with all the qualities of sovereign states.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Legislator",
+        "chinese": "立法者 / 立法委員",
+        "usage_context": "負責制定、修改或廢止法律的人",
+        "example_sentence": "Legislators in the Legislative Yuan often have heated debates over the national budget.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Representatives",
+        "chinese": "代表",
+        "usage_context": "在議會或外交場合中替人民或政府發言的人",
+        "example_sentence": "Taiwan sends representatives to many countries to handle trade and visa affairs.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Trade deal",
+        "chinese": "貿易協定",
+        "usage_context": "國與國之間關於關稅、貿易限制的協議",
+        "example_sentence": "The government is working hard to sign a new trade deal with the United States.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Historical roots",
+        "chinese": "歷史根源",
+        "usage_context": "事件、衝突或政策發展的歷史背景與由來",
+        "example_sentence": "The complex relationship across the Strait has deep historical roots.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "International realities",
+        "chinese": "國際現實",
+        "usage_context": "現實主義外交中，指不以意志為轉移的權力格局",
+        "example_sentence": "Due to international realities, Taiwan participates in the Olympics as \"Chinese Taipei.\"",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Diplomatically sensitive",
+        "chinese": "外交敏感的",
+        "usage_context": "形容議題容易引起政治摩擦，需謹慎處理",
+        "example_sentence": "Any visit by high-ranking U.S. officials to Taipei is highly diplomatically sensitive.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Diplomatic recognition",
+        "chinese": "外交承認",
+        "usage_context": "一國正式承認另一政權為合法國家的行為",
+        "example_sentence": "Only a small number of countries grant full diplomatic recognition to Taiwan.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "De facto",
+        "chinese": "事實上的",
+        "usage_context": "法律未正式承認，但現實中確實存在的狀態",
+        "example_sentence": "Taiwan has been a de facto independent country for decades.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "De jure",
+        "chinese": "法律上的",
+        "usage_context": "法律明確規定、經過正式程序承認的狀態",
+        "example_sentence": "Many nations do not recognize Taiwan de jure, yet they maintain strong unofficial ties.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Controversial",
+        "chinese": "有爭議的",
+        "usage_context": "引起公眾強烈意見分歧、爭論的",
+        "example_sentence": "The decision to import certain food products remains controversial among the public.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Workaround",
+        "chinese": "變通方法",
+        "usage_context": "在正式道路受阻時，採取非正式但有效的解決方案",
+        "example_sentence": "Using \"Representative Offices\" instead of \"Embassies\" is a clever diplomatic workaround.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Paradoxical",
+        "chinese": "矛盾的",
+        "usage_context": "形容情況看似自我衝突，卻可能反映某種真實",
+        "example_sentence": "It is paradoxical that trade remains high despite the political tension between the two sides.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Engage",
+        "chinese": "交流 / 參與 / 接觸",
+        "usage_context": "國與國之間主動建立聯繫而非採取孤立政策",
+        "example_sentence": "Taiwan continues to engage with European nations through cultural and economic exchange.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Diplomatic allies",
+        "chinese": "外交盟友",
+        "usage_context": "具有正式邦交關係並在政治上結盟的國家",
+        "example_sentence": "Taiwan provides medical and agricultural aid to its remaining diplomatic allies.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Like-minded",
+        "chinese": "志同道合的",
+        "usage_context": "形容在民主、人權等價值觀上立場一致的夥伴",
+        "example_sentence": "Taiwan works closely with like-minded partners like Japan to maintain regional peace.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Critical role",
+        "chinese": "關鍵角色",
+        "usage_context": "指在某個體系或事件中起決定性影響的地位",
+        "example_sentence": "TSMC plays a critical role in the global semiconductor supply chain.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Trading partner",
+        "chinese": "貿易夥伴",
+        "usage_context": "兩國或地區間有穩定且顯著的經貿往來",
+        "example_sentence": "China remains Taiwan's largest trading partner, followed by the U.S. and Japan.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Substantive partnerships",
+        "chinese": "實質夥伴關係",
+        "usage_context": "雖無名分（邦交），但在經濟、國防等有深刻合作",
+        "example_sentence": "Taiwan has developed substantive partnerships with many countries that lack official ties.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Contingency",
+        "chinese": "應變計劃 / 偶然性",
+        "usage_context": "為了應對未來可能發生的意外或衝突所做的準備",
+        "example_sentence": "The military has developed contingency plans for various scenarios in the Taiwan Strait.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Coercion",
+        "chinese": "脅迫",
+        "usage_context": "利用武力、經濟壓力強迫他方屈服的手段",
+        "example_sentence": "Taiwan has faced economic coercion, such as sudden bans on its fruit exports.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Democracies",
+        "chinese": "民主國家 (複數)",
+        "usage_context": "實行民主制度的國家群體",
+        "example_sentence": "As one of the leading democracies in Asia, Taiwan values freedom and human rights.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Undersea cables",
+        "chinese": "海底電纜",
+        "usage_context": "全球通訊與網路傳輸的核心基礎設施",
+        "example_sentence": "Protecting undersea cables is vital for Taiwan’s internet security and connectivity.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Disinformation campaign",
+        "chinese": "假訊息攻勢",
+        "usage_context": "有系統地散布謠言以影響選舉或破壞社會穩定",
+        "example_sentence": "Taiwan is often a target of a massive disinformation campaign during election seasons.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Frontline experience",
+        "chinese": "第一線經驗",
+        "usage_context": "直接面對威脅（如資安、戰爭）的實際應對經驗",
+        "example_sentence": "Taiwan has valuable frontline experience in defending against cyberattacks.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Intentions",
+        "chinese": "意圖",
+        "usage_context": "一國在政治或軍事行動背後的真正目的",
+        "example_sentence": "We must carefully monitor the intentions behind the increased military exercises.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Dictator",
+        "chinese": "獨裁者",
+        "usage_context": "掌握絕對權力、不容許反對派存在的統治者",
+        "example_sentence": "Having lived through the era of a dictator, Taiwanese people deeply cherish their freedom.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Ambitions",
+        "chinese": "野心 / 抱負",
+        "usage_context": "擴大影響力、領土或權力的宏大計畫",
+        "example_sentence": "Many countries are concerned about the regional ambitions of powerful neighbors.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Well-functioning",
+        "chinese": "運作良好的",
+        "usage_context": "形容制度（如法律、市場）成熟、有效率",
+        "example_sentence": "Taiwan is proud of its well-functioning National Health Insurance system.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "In practice",
+        "chinese": "在實務上",
+        "usage_context": "實際上如何執行，通常與理論或法律相對",
+        "example_sentence": "The law says we are equal, but in practice, some groups still face challenges.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "On paper",
+        "chinese": "在紙面上 / 理論上",
+        "usage_context": "指條約或法律明文記載，但現實中未必落實",
+        "example_sentence": "The agreement looks good on paper, but the actual results depend on cooperation.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Democracy / Democratic",
+        "chinese": "民主 / 民主的",
+        "usage_context": "以人民意願為核心的統治機制或價值",
+        "example_sentence": "Voting is the most direct way for citizens to participate in a democracy.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Align with interests",
+        "chinese": "符合利益",
+        "usage_context": "政策或行動與國家的長期目標相符",
+        "example_sentence": "Strengthening ties with Europe will align with Taiwan's national interests.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Moral",
+        "chinese": "道德的 / 道義的",
+        "usage_context": "基於是非對錯的價值判斷，而非單純的利益",
+        "example_sentence": "Taiwan provides moral and material support to countries hit by natural disasters.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Resilience",
+        "chinese": "韌性",
+        "usage_context": "社會或經濟在遭受衝擊後迅速恢復的能力",
+        "example_sentence": "The Taiwan earthquake showed the incredible resilience of our infrastructure and people.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      }
+    ]
+  },
+  {
+    "name": "L2",
+    "description": "",
+    "words": [
+      {
+        "english": "Surreal",
+        "chinese": "超現實的",
+        "usage_context": "形容如常生活與戰爭威脅並存的奇特感受。",
+        "example_sentence": "It feels surreal to go shopping while warplanes are flying nearby.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Co-exist",
+        "chinese": "共存",
+        "usage_context": "討論與長期威脅、或不同制度的鄰居相處時。",
+        "example_sentence": "Taiwan must learn how to co-exist with constant cross-strait pressure.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Drills / Exercises",
+        "chinese": "軍事演習",
+        "usage_context": "指國軍漢光演習或對岸繞台軍演等正式行動。",
+        "example_sentence": "The latest military exercises have raised concerns about regional stability.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Harassment",
+        "chinese": "騷擾",
+        "usage_context": "指機艦天天越線等「不到戰爭但煩人」的挑釁。",
+        "example_sentence": "The daily military harassment in our airspace exhausts our pilots.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Gray zone tactics",
+        "chinese": "灰色地帶手段",
+        "usage_context": "指利用非軍事手段（如海警）施壓的模糊策略。",
+        "example_sentence": "China uses gray zone tactics to pressure us without starting a war.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Hybrid threats",
+        "chinese": "混合威脅",
+        "usage_context": "指結合武力、網攻與經濟打壓的複合式攻擊。",
+        "example_sentence": "We must prepare for hybrid threats that target our power grid.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Psychological warfare",
+        "chinese": "心理戰",
+        "usage_context": "指意圖瓦解台灣民眾鬥志、製造恐慌的言論。",
+        "example_sentence": "Spreading rumors about invasion is a form of psychological warfare.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Cognitive Warfare",
+        "chinese": "認知戰",
+        "usage_context": "指透過社群媒體假訊息操控民眾判斷的作戰。",
+        "example_sentence": "Taiwan is on the frontlines of countering cognitive warfare.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Polarize",
+        "chinese": "使兩極化",
+        "usage_context": "指政治立場對立、導致社會分裂到無法溝通。",
+        "example_sentence": "Extreme political debates can polarize our society and weaken unity.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Annexation",
+        "chinese": "併吞",
+        "usage_context": "討論領土被強行奪取，強調「反併吞」立場時。",
+        "example_sentence": "Taiwan is determined to resist any attempt at forced annexation.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Rejuvenation",
+        "chinese": "復興",
+        "usage_context": "專指對岸口號中的「中華民族偉大復興」。",
+        "example_sentence": "The slogan of \"national rejuvenation\" is used to justify pressure on us.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Provocative",
+        "chinese": "挑釁的",
+        "usage_context": "形容某種軍事動作極具威脅且可能引發衝突。",
+        "example_sentence": "Crossing the median line is seen as a highly provocative act.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Compartmentalize",
+        "chinese": "劃分 / 隔開",
+        "usage_context": "討論將經貿與政治完全分開處理的情況。",
+        "example_sentence": "It is hard to compartmentalize our business from national security.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Weaponization",
+        "chinese": "武器化",
+        "usage_context": "指將經貿、觀光或法規轉變為打壓手段時。",
+        "example_sentence": "We see the weaponization of trade through sudden import bans.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Coping mechanism",
+        "chinese": "應對機制",
+        "usage_context": "指台灣民眾面對長期威脅時發展出的心理調適。",
+        "example_sentence": "Using humor to mock threats is a common coping mechanism.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Narrative",
+        "chinese": "敘事 / 說法",
+        "usage_context": "討論如何向國際講述台灣的故事與民主價值。",
+        "example_sentence": "We must build a strong narrative that highlights Taiwan’s value.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Speak to their intentions",
+        "chinese": "揭示其意圖",
+        "usage_context": "從具體行為判斷對方背後真正的不良目的。",
+        "example_sentence": "The scale of the landing drill speaks to their intentions.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Ongoing threat",
+        "chinese": "持續的威脅",
+        "usage_context": "描述長期存在、未曾消失的風險與壓力。",
+        "example_sentence": "Cyberattacks from abroad are an ongoing threat to our system.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Military Grinding",
+        "chinese": "軍事消耗戰",
+        "usage_context": "指透過頻繁擾台來磨損我方戰力與資源的策略。",
+        "example_sentence": "Constant jet scrambles are part of a military grinding strategy.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "ADIZ",
+        "chinese": "防空識別區",
+        "usage_context": "指機艦進入我方防空緩衝空間的新聞用語。",
+        "example_sentence": "Foreign military aircraft enter Taiwan’s ADIZ almost every day.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Infiltration",
+        "chinese": "滲透",
+        "usage_context": "討論間諜潛伏或科技後門被植入關鍵設施時。",
+        "example_sentence": "The government is passing laws to prevent foreign infiltration.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Diplomatic Encirclement",
+        "chinese": "外交圍堵",
+        "usage_context": "指台灣在國際空間與邦交國被強權封鎖的困境。",
+        "example_sentence": "Despite diplomatic encirclement, Taiwan continues to gain friends.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Numbing effect",
+        "chinese": "麻痺效應",
+        "usage_context": "指威脅太頻繁後，大眾對危險警訊感到麻木。",
+        "example_sentence": "Constant threats can have a numbing effect on the public.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Military Reform",
+        "chinese": "軍事改革",
+        "usage_context": "指軍隊訓練現代化、調整國防組織的過程。",
+        "example_sentence": "Military reform is needed to modernize our combat power.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Civil Defense",
+        "chinese": "民防",
+        "usage_context": "指民間團體參與的防災、急救與避難準備。",
+        "example_sentence": "Improving civil defense awareness is essential for national safety.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Military training",
+        "chinese": "軍事訓練",
+        "usage_context": "泛指役男與士兵入伍服役後的訓練內容。",
+        "example_sentence": "The new policy makes military training more practical and tough.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Mandatory military service",
+        "chinese": "兵役 / 義務役",
+        "usage_context": "討論全民服役義務，如「延長兵役」時。",
+        "example_sentence": "Taiwan recently extended mandatory military service to one year.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Resource Resilience",
+        "chinese": "資源韌性",
+        "usage_context": "國家在封鎖下能維持能源、糧食供應的能力。",
+        "example_sentence": "Building resource resilience in energy is crucial for our survival.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Blockade",
+        "chinese": "封鎖",
+        "usage_context": "指對外海空交通與貿易航道被切斷的情況。",
+        "example_sentence": "A naval blockade would severely impact our export-driven economy.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Sanctions",
+        "chinese": "制裁",
+        "usage_context": "國際社會對侵略者實施的經濟或政治懲罰。",
+        "example_sentence": "Nations may impose sanctions if the peace is broken by force.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Status quo",
+        "chinese": "現狀",
+        "usage_context": "討論兩岸維持目前「不統、不獨」的平衡狀態。",
+        "example_sentence": "Most people in Taiwan prefer to maintain the status quo.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Destabilize",
+        "chinese": "破壞穩定",
+        "usage_context": "指某個行動會讓台海或印太區域陷入動盪不安。",
+        "example_sentence": "Any aggressive move could destabilize the entire Indo-Pacific.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Totalitarian",
+        "chinese": "極權主義的",
+        "usage_context": "描述國家全面監控私人生活且剝奪所有自由的狀態",
+        "example_sentence": "North Korea is a totalitarian state with no access to the global internet.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Authoritarian",
+        "chinese": "威權主義的",
+        "usage_context": "指權力集中在個人或政黨且不容許政治競爭的體制",
+        "example_sentence": "Many observers describe Xi Jinping as an authoritarian leader with absolute control.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Expansionist",
+        "chinese": "擴張主義的",
+        "usage_context": "描述國家試圖透過武力或脅迫來奪取領土擴張勢力",
+        "example_sentence": "Putin's expansionist ambitions have led to a major security crisis in Europe.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Oppressive",
+        "chinese": "壓迫的",
+        "usage_context": "描述政府使用嚴厲手段或審查制度剝奪自由使人痛苦",
+        "example_sentence": "People under an oppressive regime often risk their lives to seek freedom abroad.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Regime",
+        "chinese": "政權 / 體制",
+        "usage_context": "討論特定政府統治結構通常在描述非民主或強勢統治時",
+        "example_sentence": "The international community imposed sanctions to pressure the aggressive regime.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      }
+    ]
+  },
+  {
+    "name": "L3",
+    "description": "",
+    "words": [
+      {
+        "english": "Lynchpin",
+        "chinese": "核心 / 關鍵",
+        "usage_context": "形容台灣在半導體或區域安全中不可或缺的地位",
+        "example_sentence": "Taiwan is the lynchpin of the global high-tech supply chain.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Pivotal player",
+        "chinese": "關鍵參與者",
+        "usage_context": "指在國際事務或供應鏈中具有舉足輕重影響力的角色",
+        "example_sentence": "Taiwan has become a pivotal player in the Indo-Pacific region.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "First Island Chain",
+        "chinese": "第一島鏈",
+        "usage_context": "地緣政治術語，指台灣所在的軍事防禦第一線",
+        "example_sentence": "Taiwan’s location in the First Island Chain is strategically vital.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Assumption",
+        "chinese": "假設 / 前提",
+        "usage_context": "討論政策制定或戰略推演時所基於的預設情況",
+        "example_sentence": "Our defense strategy is based on the assumption of a potential blockade.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Solution provider",
+        "chinese": "方案提供者",
+        "usage_context": "強調台灣能為世界解決問題（如技術或防疫）",
+        "example_sentence": "Taiwan is a global solution provider in public health and tech.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Censored",
+        "chinese": "被審查的",
+        "usage_context": "指言論、訊息或網路內容受到官方限制或刪除",
+        "example_sentence": "In some countries, any mention of Taiwan’s democracy is censored.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Vulnerability",
+        "chinese": "脆弱性 / 弱點",
+        "usage_context": "指基礎設施或經濟中容易受到攻擊或干擾的部分",
+        "example_sentence": "We must reduce our energy vulnerability to ensure national security.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Global order",
+        "chinese": "國際秩序",
+        "usage_context": "指規範國際行為、維持和平與貿易的現有體系",
+        "example_sentence": "Any conflict in the Strait would disrupt the existing global order.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Intervene",
+        "chinese": "介入 / 干預",
+        "usage_context": "討論他國（如美、日）是否會在衝突發生時採取行動",
+        "example_sentence": "There are many debates on whether allies will intervene if war breaks out.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Reframing",
+        "chinese": "重新建構",
+        "usage_context": "將議題（如台灣問題）從內政層面提升至全球層面",
+        "example_sentence": "We are reframing the Taiwan issue as a global economic priority.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Agenda setting",
+        "chinese": "議題設定",
+        "usage_context": "指引導大眾或國際社會關注特定重要議題的能力",
+        "example_sentence": "The government is active in agenda setting regarding cyber security.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Normalize",
+        "chinese": "使常態化",
+        "usage_context": "描述對方透過頻繁行動讓威脅或侵擾變得平淡無奇",
+        "example_sentence": "Constant military flights are an attempt to normalize the threat.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Prepare for the worst",
+        "chinese": "做最壞的打算",
+        "usage_context": "形容面臨潛在衝突或災害時應有的防衛心理",
+        "example_sentence": "To ensure peace, we must prepare for the worst while hoping for peace.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Strive for the best",
+        "chinese": "爭取最好的結果",
+        "usage_context": "在壓力下仍積極追求正面發展或外交上的突破",
+        "example_sentence": "We strive for the best possible international participation for Taiwan.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Pacific defense line",
+        "chinese": "太平洋防線",
+        "usage_context": "指在太平洋地區維持安全與圍堵擴張的防禦網絡",
+        "example_sentence": "Taiwan is a critical anchor in the Pacific defense line.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Rules-based order",
+        "chinese": "以規則為基礎的秩序",
+        "usage_context": "強調各國應遵守國際法，反對以武力改變現狀",
+        "example_sentence": "Taiwan is a responsible partner that upholds the rules-based order.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Laboratory of Democracy",
+        "chinese": "民主實驗室",
+        "usage_context": "形容台灣在對抗假訊息或數位民主上的試驗地位",
+        "example_sentence": "Taiwan is often seen as a Laboratory of Democracy for the world.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Recipient",
+        "chinese": "接受者 / 受援國",
+        "usage_context": "指接受外國援助、技術轉移或特定訊息的對象",
+        "example_sentence": "Taiwan has transformed from a foreign aid recipient to a donor.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Agricultural technology",
+        "chinese": "農業技術",
+        "usage_context": "指台灣對外技術援助或本身具有優勢的耕作科技",
+        "example_sentence": "Taiwan shares its advanced agricultural technology with its allies.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Digital infrastructure",
+        "chinese": "數位基礎設施",
+        "usage_context": "指網路、伺服器及資安系統等現代國家運作根基",
+        "example_sentence": "Protecting our digital infrastructure is key to preventing cyberattacks.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Firsthand",
+        "chinese": "第一手的 / 親身的",
+        "usage_context": "描述親自經歷（如對抗疫情或假訊息）的直接經驗",
+        "example_sentence": "Our officials shared firsthand experience in countering disinformation.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Participate",
+        "chinese": "參與",
+        "usage_context": "討論台灣加入或出席國際組織與活動的權利",
+        "example_sentence": "Taiwan has the right and ability to participate in global organizations.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Conflict zone",
+        "chinese": "衝突區",
+        "usage_context": "指極可能或正在發生武裝衝突的危險地區",
+        "example_sentence": "No one wants to see the Taiwan Strait become a conflict zone.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Stand firm",
+        "chinese": "堅定立場",
+        "usage_context": "面對外部壓力、脅迫或誘惑時，不輕易退讓",
+        "example_sentence": "The people of Taiwan stand firm in protecting their way of life.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Contributions",
+        "chinese": "貢獻",
+        "usage_context": "強調台灣在醫療、科技或公益領域給予國際的幫助",
+        "example_sentence": "Taiwan’s contributions to global health cannot be ignored.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Thrives",
+        "chinese": "繁榮 / 茁壯",
+        "usage_context": "形容台灣在壓力下依然展現強韌的生命力與經濟",
+        "example_sentence": "Despite the pressure, Taiwan’s tech industry continues to thrive.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Test ground",
+        "chinese": "測試場 / 試驗地",
+        "usage_context": "形容台灣常成為新型假訊息或網攻的先行實驗區",
+        "example_sentence": "Taiwan is often a test ground for new forms of information warfare.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Fortify",
+        "chinese": "強化 / 加固",
+        "usage_context": "討論加強國防、資安、社會韌性或心防時使用",
+        "example_sentence": "We need to fortify our defenses against external interference.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Invaluable",
+        "chinese": "極其寶貴的",
+        "usage_context": "指某些見解、經驗或支持具有無法衡量的價值",
+        "example_sentence": "The support from our like-minded partners is invaluable.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Talent cultivation",
+        "chinese": "人才培育",
+        "usage_context": "討論發展半導體、AI 或雙語等專業人才的政策",
+        "example_sentence": "Talent cultivation in AI is essential for Taiwan’s future.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Foreign aid",
+        "chinese": "外交援助",
+        "usage_context": "國家提供給友邦或發展中國家的技術或資金支援",
+        "example_sentence": "Taiwan provides foreign aid to support development in Latin America.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Mandarin",
+        "chinese": "華語 / 國語",
+        "usage_context": "討論語言教學、文化交流或取代孔子學院的機會",
+        "example_sentence": "Many foreigners choose to study Mandarin in Taiwan.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Destination",
+        "chinese": "目的地",
+        "usage_context": "討論觀光、移民、人才回流或外資投資的首選地",
+        "example_sentence": "Taiwan is a top destination for high-tech investment.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Take over by force",
+        "chinese": "武力奪取",
+        "usage_context": "討論他國意圖以非法暴力手段併吞台灣的行為",
+        "example_sentence": "The world opposes any attempt to take over Taiwan by force.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Expertise",
+        "chinese": "專業知識 / 專長",
+        "usage_context": "指在防疫、晶片製造或防災等領域擁有的專長",
+        "example_sentence": "Taiwan is willing to share its expertise in disaster management.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Geopolitics",
+        "chinese": "地緣政治",
+        "usage_context": "描述台灣地理位置在國際權力格局中的戰略重要性",
+        "example_sentence": "Geopolitics plays a crucial role in Taiwan's international relations.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      }
+    ]
+  },
+  {
+    "name": "L4",
+    "description": "",
+    "words": [
+      {
+        "english": "Personal experience",
+        "chinese": "個人經驗",
+        "usage_context": "談論自身成長背景或對政治事件的親身感受",
+        "example_sentence": "My personal experience during the movement shaped my political views.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Perspective",
+        "chinese": "觀點 / 視角",
+        "usage_context": "討論對台灣地位或社會議題的不同看法",
+        "example_sentence": "We should look at this issue from a global perspective.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Identity",
+        "chinese": "身分認同",
+        "usage_context": "討論「我是台灣人」或文化認同的核心議題",
+        "example_sentence": "The development of a unique Taiwan identity is a long process.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Trigger",
+        "chinese": "觸發 / 誘因",
+        "usage_context": "描述某個事件引發了大規模的社會反應或情緒",
+        "example_sentence": "The policy change served as a trigger for nationwide protests.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Perceived",
+        "chinese": "被感知的 / 被認為",
+        "usage_context": "描述大眾對某種威脅或現象的主觀感受",
+        "example_sentence": "The perceived threat from the neighboring country has increased.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Fluid",
+        "chinese": "流動的 / 不穩定的",
+        "usage_context": "形容身分認同或政局變幻莫測、非固定不變",
+        "example_sentence": "Public opinion on national identity is often fluid and changing.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Martial law",
+        "chinese": "戒嚴",
+        "usage_context": "指台灣過去長達 38 年的威權統治時期",
+        "example_sentence": "Taiwan remained under martial law for several decades.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Generation",
+        "chinese": "世代",
+        "usage_context": "討論「天然統」與「天然獨」等世代觀念差異",
+        "example_sentence": "There is a significant gap between the older and younger generation.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Wake up call",
+        "chinese": "警鐘",
+        "usage_context": "指某個事件讓民眾突然意識到危機（如香港局勢）",
+        "example_sentence": "The recent crisis served as a wake up call for our national defense.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Sunflower Movement",
+        "chinese": "太陽花學運",
+        "usage_context": "指 2014 年對台灣政治與身分認同影響深遠的運動",
+        "example_sentence": "The Sunflower Movement changed the course of Taiwan’s politics.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Dilemmas",
+        "chinese": "困境 / 進退兩難",
+        "usage_context": "討論台灣在經濟依賴與國家安全之間的兩難",
+        "example_sentence": "Taiwan faces many diplomatic dilemmas in the international arena.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Indigenous",
+        "chinese": "原住民的 / 土生土長的",
+        "usage_context": "討論台灣原住民族群或本土文化時",
+        "example_sentence": "We must respect the rights and heritage of indigenous peoples.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Trend",
+        "chinese": "趨勢",
+        "usage_context": "描述認同台灣人比例上升或社會發展動向",
+        "example_sentence": "The trend of identifying as \"Taiwanese only\" has been rising steadily.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Background",
+        "chinese": "背景",
+        "usage_context": "討論一個人的家庭歷史、省籍或教育背景",
+        "example_sentence": "People from different backgrounds can still share a common goal.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Undeniable",
+        "chinese": "不可否認的",
+        "usage_context": "強調事實（如台灣是民主國家）極其明確",
+        "example_sentence": "It is an undeniable fact that Taiwan is a vibrant democracy.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Steadily",
+        "chinese": "穩定地",
+        "usage_context": "形容某種社會趨勢（如民主化）持續進步",
+        "example_sentence": "Taiwan's international profile has been rising steadily.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Spikes in",
+        "chinese": "急劇增加",
+        "usage_context": "形容短期內（如選前）某種數據或現象飆升",
+        "example_sentence": "We often see spikes in fake news right before an election.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Missile",
+        "chinese": "飛彈",
+        "usage_context": "討論軍事演習或對岸武力威脅時",
+        "example_sentence": "The missile tests in the 1990s caused a major crisis in the Strait.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Presidential election",
+        "chinese": "總統大選",
+        "usage_context": "台灣每四年一次的重要民主政治活動",
+        "example_sentence": "The presidential election attracts global attention every four years.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Crackdown",
+        "chinese": "鎮壓 / 打擊",
+        "usage_context": "討論強權對民主運動或言論自由的壓制",
+        "example_sentence": "The crackdown on protesters in Hong Kong shocked the world.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Pro-democracy",
+        "chinese": "支持民主的",
+        "usage_context": "形容追求民主制度的運動、人士或立場",
+        "example_sentence": "Taiwan supports pro-democracy movements around the globe.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "The Hong Kong protest",
+        "chinese": "香港抗爭",
+        "usage_context": "2019 年反送中運動對台灣人認同感的影響",
+        "example_sentence": "The Hong Kong protest deeply affected public opinion in Taiwan.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "One country two systems",
+        "chinese": "一國兩制",
+        "usage_context": "討論對岸提出的政治架構及台灣人的看法",
+        "example_sentence": "Most people in Taiwan reject the \"one country two systems\" model.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Fable of north wind",
+        "chinese": "北風寓言",
+        "usage_context": "比喻強硬威脅（北風）通常比溫暖（太陽）無效",
+        "example_sentence": "The fable of the north wind explains why threats can be counterproductive.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Constant",
+        "chinese": "持續不斷的",
+        "usage_context": "形容長期且未曾中斷的軍事或外交壓力",
+        "example_sentence": "We live under the constant pressure of international isolation.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Intimidation",
+        "chinese": "恐嚇 / 威脅",
+        "usage_context": "描述透過武力展示意圖使台灣屈服的行為",
+        "example_sentence": "Military intimidation only strengthens our resolve to stay free.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Counterproductive",
+        "chinese": "適得其反的",
+        "usage_context": "指某種打壓行為反而激起台灣人的反感與團結",
+        "example_sentence": "Excessive pressure from the outside is often counterproductive.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "National identity",
+        "chinese": "國家認同",
+        "usage_context": "討論對「國家名稱」或「國家歸屬」的認同感",
+        "example_sentence": "Education plays a key role in shaping national identity.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Nationality",
+        "chinese": "國籍",
+        "usage_context": "指法律上的身分證件或國籍歸屬",
+        "example_sentence": "When traveling, many people proudly state their nationality as Taiwanese.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Evolving",
+        "chinese": "演變中的 / 進化中的",
+        "usage_context": "形容台灣的身分認同隨時間不斷變化與成熟",
+        "example_sentence": "Our sense of community is constantly evolving.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Educational backgrounds",
+        "chinese": "教育背景",
+        "usage_context": "討論學歷或受教育環境對價值觀的影響",
+        "example_sentence": "Students from various educational backgrounds joined the rally.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Push from",
+        "chinese": "來自...的推力",
+        "usage_context": "指外在負面因素（如打壓）將人推向某種認同",
+        "example_sentence": "The constant threats create a push from the mainland identity.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Pull of",
+        "chinese": "來自...的拉力",
+        "usage_context": "指內在正面因素（如民主生活）吸引人產生認同",
+        "example_sentence": "The pull of democratic values keeps our society united.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Heritage",
+        "chinese": "傳承 / 遺產",
+        "usage_context": "描述從祖先繼承而來的語言、習俗與家族認同感",
+        "example_sentence": "Learning our mother tongue is a way to preserve our heritage.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Multicultural",
+        "chinese": "多元文化的",
+        "usage_context": "形容台灣社會由不同族群與移民背景交織成的豐富面貌",
+        "example_sentence": "Taiwan's history has shaped it into a vibrant, multicultural society.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "New immigrants\n",
+        "chinese": "新住民",
+        "usage_context": "描述近代由東南亞或各國移居並在台灣落地生根的族群",
+        "example_sentence": "New immigrants from Southeast Asia enrich Taiwan's cultural landscape.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Opposition party",
+        "chinese": "在野黨",
+        "usage_context": "描述未掌握行政權但負責監督政府運作的政治團體",
+        "example_sentence": "The opposition party criticized the government's new energy policy.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Ruling party",
+        "chinese": "執政黨",
+        "usage_context": "指在選舉中獲勝並掌握國家行政權力與決策的政黨",
+        "example_sentence": "The ruling party is responsible for passing the national budget.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Transfer of power",
+        "chinese": "政黨輪替",
+        "usage_context": "描述政權由原執政黨移交至另一個政黨的民主過程",
+        "example_sentence": "A peaceful transfer of power is a hallmark of a healthy democracy.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      }
+    ]
+  },
+  {
+    "name": "L5",
+    "description": "",
+    "words": [
+      {
+        "english": "Vertical",
+        "chinese": "垂直的",
+        "usage_context": "描述台灣地景在短時間內從海邊上升到高山",
+        "example_sentence": "Taiwan is a vertical world where you reach mountains in two hours.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Evolution",
+        "chinese": "演化",
+        "usage_context": "討論物種因長期隔離而孕育出獨特特徵的過程",
+        "example_sentence": "Species in Taiwan underwent evolution in isolation for centuries.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Isolation",
+        "chinese": "隔離",
+        "usage_context": "指物種困在島上與外界斷絕往來並獨自演化",
+        "example_sentence": "Isolation allowed animals to develop unique traits over time.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Endemic Species",
+        "chinese": "特有種",
+        "usage_context": "專指僅存在於特定地區且在世界他處找不到的物種",
+        "example_sentence": "Taiwan is home to many endemic species, like unique birds.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Pandemic",
+        "chinese": "大流行",
+        "usage_context": "指一種疾病在全球範圍內廣泛傳播且影響大量人口",
+        "example_sentence": "The pandemic showed the value of global health cooperation.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Taiwan Barbet",
+        "chinese": "五色鳥",
+        "usage_context": "指台灣常見且叫聲極具辨識度的特有種鳥類",
+        "example_sentence": "The Taiwan Barbet has colorful feathers and a distinct call.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Mikado pheasant",
+        "chinese": "帝雉",
+        "usage_context": "指印在千元鈔票背面且身為台灣珍貴的特有種",
+        "example_sentence": "You can see the Mikado pheasant on the NT$1,000 bill.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Ancestral home",
+        "chinese": "發源地",
+        "usage_context": "引用理論說明台灣是南島語系民族向外遷移的起點",
+        "example_sentence": "Taiwan is considered the ancestral home of Austronesians.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Endure",
+        "chinese": "持續存在",
+        "usage_context": "討論如何讓原住民文化與語言在現代社會中傳承",
+        "example_sentence": "We must take action to ensure these indigenous voices endure.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Multi-tongue",
+        "chinese": "多種語言的",
+        "usage_context": "描述學校提供多種母語課程以保存不同族群語言",
+        "example_sentence": "Our schools offer multi-tongue classes to save local languages.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Fruit",
+        "chinese": "成果",
+        "usage_context": "指經過長期努力與奮鬥後所獲得的正面結果",
+        "example_sentence": "Our freedom is the fruit of Taiwan's journey toward democracy.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Dedication",
+        "chinese": "奉獻",
+        "usage_context": "形容前人為了守護文化認同所付出的努力與精神",
+        "example_sentence": "Their dedication to cultural identity made our society diverse.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Hakka",
+        "chinese": "客家",
+        "usage_context": "指台灣重要族群之一及其獨特的語言與文化",
+        "example_sentence": "Hakka culture and language are vital parts of Taiwan’s diversity.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Hokkien",
+        "chinese": "台語",
+        "usage_context": "描述台灣廣泛使用的語言變體及其族群認同",
+        "example_sentence": "Many people in Taiwan speak Hokkien as their mother tongue.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Precise",
+        "chinese": "精確的",
+        "usage_context": "強調自我介紹時應使用具體名稱來定義語言",
+        "example_sentence": "Mandarin is a precise name for the language we speak in Taiwan.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Altruism",
+        "chinese": "利他主義",
+        "usage_context": "描述不計酬勞且純粹為了他人利益做出貢獻的精神",
+        "example_sentence": "High blood donation rates reflect the altruism of Taiwanese.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Kindness",
+        "chinese": "善良",
+        "usage_context": "指台灣人面對國際災難時主動伸出援手的體貼",
+        "example_sentence": "Our kindness is the soul power that defines Taiwan’s identity.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Blood donation",
+        "chinese": "捐血",
+        "usage_context": "討論台灣領先全球的捐血率以展現社會互助能量",
+        "example_sentence": "Taiwan's blood donation rate was the highest in the world in 2023.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Pride parade",
+        "chinese": "同志大遊行",
+        "usage_context": "指每年十月在台北舉行且規模為亞洲最大的活動",
+        "example_sentence": "Taipei hosts a massive pride parade every October for equality.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Atmosphere",
+        "chinese": "氛圍",
+        "usage_context": "形容特定場合營造出的情緒感受或環境整體氣息",
+        "example_sentence": "The atmosphere during the pride parade is a unique experience.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Navigate",
+        "chinese": "應對",
+        "usage_context": "討論如何處理複雜程序或引導新手適應新身分",
+        "example_sentence": "The handbook helps couples navigate the tasks of parenthood.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Accessibility",
+        "chinese": "可近性",
+        "usage_context": "描述醫療服務易於取得且不分貧富都能使用",
+        "example_sentence": "The accessibility of Taiwan's healthcare is world-class.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Convenience",
+        "chinese": "便利性",
+        "usage_context": "指超商隨處可見且能處理生活中各種瑣碎事務",
+        "example_sentence": "The convenience of living in Taiwan makes life incredibly easy.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Multifunctional",
+        "chinese": "多功能的",
+        "usage_context": "描述超商除了買東西還能影印與洗衣等多元服務",
+        "example_sentence": "Our multifunctional stores handle laundry and banking needs.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Healthcare",
+        "chinese": "醫療保健",
+        "usage_context": "指台灣引以為傲的健保制度及其高品質醫療服務",
+        "example_sentence": "Taiwan's healthcare is regarded as a global gold standard.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Save tables",
+        "chinese": "佔位置",
+        "usage_context": "形容在餐廳用手機先預留座位的社會信任行為",
+        "example_sentence": "It is so safe that people use phones to save tables in restaurants.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Reliable",
+        "chinese": "可靠的",
+        "usage_context": "描述台灣企業展現出專業且值得信賴的合作精神",
+        "example_sentence": "Taiwan is a reliable partner in the global high-tech chain.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Plurality",
+        "chinese": "共榮多元",
+        "usage_context": "指不同族群在共享空間內維持獨特性並共榮運作",
+        "example_sentence": "Plurality allows different groups to work together while distinct.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Austronesians",
+        "chinese": "南島語族人",
+        "usage_context": "指源自台灣並散布於廣大海洋島嶼的人民",
+        "example_sentence": "Taiwan is the ancestral home for Austronesians worldwide.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Diversity",
+        "chinese": "多樣性",
+        "usage_context": "描述一個地區擁有豐富的物種或文化各異狀態",
+        "example_sentence": "Taiwan’s biological diversity makes it a living museum.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Sustain",
+        "chinese": "維持",
+        "usage_context": "討論如何讓社會運作順暢並守護共享的公共生活",
+        "example_sentence": "Our democracy helps sustain a shared public life for all.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Ecological arc",
+        "chinese": "生態方舟",
+        "usage_context": "形容台灣作為避難所並重新孕育出物種的獨特地位",
+        "example_sentence": "Taiwan is an ecological arc that protects many ancient species.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Beacon of equality",
+        "chinese": "平權燈塔",
+        "usage_context": "形容台灣在亞洲平權運動中具備引領地位的意義",
+        "example_sentence": "Taiwan is a beacon of equality after legalizing same-sex marriage.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Continental island",
+        "chinese": "大陸型島嶼",
+        "usage_context": "描述台灣曾與大陸相連且擁有豐富物種來源的特徵",
+        "example_sentence": "Taiwan is a continental island that was once linked to Asia.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Ice Age",
+        "chinese": "冰河時期",
+        "usage_context": "指全球氣溫下降導致海平面變化並影響物種遷移時期",
+        "example_sentence": "Many species moved to Taiwan during the last Ice Age.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Species",
+        "chinese": "物種",
+        "usage_context": "泛指動植物分類中具有共同特徵且能繁殖的群體",
+        "example_sentence": "There are over 60,000 species registered on this small island.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      }
+    ]
+  },
+  {
+    "name": "L6",
+    "description": "",
+    "words": [
+      {
+        "english": "Minerals",
+        "chinese": "礦物",
+        "usage_context": "描述台灣缺乏自然資源且無石油與礦產的困境",
+        "example_sentence": "Taiwan has no natural resources like minerals.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Science Park",
+        "chinese": "科學園區",
+        "usage_context": "描述政府將人才與科技廠高度聚集的產業聚落",
+        "example_sentence": "Taiwan's semiconductor growth started in Hsinchu Science Park.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Counterintuitive",
+        "chinese": "違背直覺的",
+        "usage_context": "描述台積電選擇純代工而不與客戶競爭的策略",
+        "example_sentence": "TSMC made a counterintuitive choice to focus on manufacturing.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Manufacture",
+        "chinese": "製造",
+        "usage_context": "描述將原材料透過技術或機器加工轉變為產品的過程",
+        "example_sentence": "Taiwan continues to manufacture high-quality products for the world.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Compete with",
+        "chinese": "與...競爭",
+        "usage_context": "說明純代工模式讓台積電不會與自己的客戶競爭",
+        "example_sentence": "They don’t compete with their own clients.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "GDP per capita",
+        "chinese": "人均國內生產毛額",
+        "usage_context": "衡量特定區域內平均每人所產出的經濟價值與水準",
+        "example_sentence": "Taiwan’s GDP per capita has surpassed Japan.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Capability",
+        "chinese": "實力 / 系統能量",
+        "usage_context": "描述由整體系統支撐且難以被外移的製作能力",
+        "example_sentence": "It is a capability built on an entire system.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Collective",
+        "chinese": "集體的",
+        "usage_context": "強調晶片製作能力是結合眾多資源的整體成果",
+        "example_sentence": "Taiwan's chip success is based on collective social effort.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Coordination",
+        "chinese": "協調",
+        "usage_context": "指產業鏈中不同廠商之間緊密且高效的合作過程",
+        "example_sentence": "Success requires great coordination between firms.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Ecosystem",
+        "chinese": "生態系",
+        "usage_context": "指由許多供應商相互依賴所構成的完整產業環境",
+        "example_sentence": "Taiwan's chip industry relies on the whole ecosystem.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Infrastructure",
+        "chinese": "基礎設施",
+        "usage_context": "指支撐產業運作所需的硬體設備與軟體組織架構",
+        "example_sentence": "We have the necessary infrastructure for chip making.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Small and Medium Enterprises",
+        "chinese": "中小企業",
+        "usage_context": "指構成台灣經濟韌性基礎的小型與中型企業",
+        "example_sentence": "Small and Medium Enterprises are the backbone of Taiwan.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Flexibility",
+        "chinese": "靈活性",
+        "usage_context": "描述中小企業讓台灣經濟在面對變動時更具彈性",
+        "example_sentence": "SMEs provide the flexibility Taiwan needs to adapt to global changes.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Workforce",
+        "chinese": "勞動人口",
+        "usage_context": "指全台灣有超過八成的人口在中小企業中工作",
+        "example_sentence": "Over 80% of Taiwan's workforce is employed by small enterprises.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Foundation",
+        "chinese": "基礎",
+        "usage_context": "強單中小企業是支撐台灣經濟韌性的關鍵基石",
+        "example_sentence": "Small businesses are the foundation of Taiwan's economic resilience.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Export driven",
+        "chinese": "出口導向的",
+        "usage_context": "描述台灣中小企業以全球市場為主要目標的模式",
+        "example_sentence": "Taiwan's SMEs are export driven, competing successfully on the global stage.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Developed country",
+        "chinese": "已開發國家",
+        "usage_context": "討論台灣中小企業佔比在先進國家中屬於極高水準",
+        "example_sentence": "As a developed country, Taiwan has a unique economic structure.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Niche market",
+        "chinese": "利基市場",
+        "usage_context": "描述台灣企業在螺絲或潛水衣等特定領域的領先",
+        "example_sentence": "Many Taiwanese firms dominate their niche market with expertise.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Forward-looking policies",
+        "chinese": "前瞻性政策",
+        "usage_context": "指政府在 1970 年代決定發展高技術產業的計畫",
+        "example_sentence": "Success was built on forward-looking policies from the 1970s.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Screw and bolt",
+        "chinese": "螺絲與螺栓",
+        "usage_context": "以岡山為例說明台灣小零件在全球產量佔比極高",
+        "example_sentence": "My hometown is a leading screw and bolt producer globally.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Capital of",
+        "chinese": "...之都",
+        "usage_context": "用於形容某地區在特定產業中具有世界級地位",
+        "example_sentence": "Gangshan is known as the capital of screws and bolts.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Entrepreneur",
+        "chinese": "企業家",
+        "usage_context": "描述台商具備膽識且敢於在世界各地開創新局",
+        "example_sentence": "A Taiwanese entrepreneur is often daring and very resourceful.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Altruistic pirates",
+        "chinese": "利他的海盜",
+        "usage_context": "比喻台商敢於闖蕩世界獲利但同時帶動客戶成長",
+        "example_sentence": "We are altruistic pirates; we chase money but help others.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Resourceful",
+        "chinese": "足智多謀的",
+        "usage_context": "形容台商在遇到困難時總能找到解決方法的特質",
+        "example_sentence": "Our business owners are resourceful and always find a way.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Agile",
+        "chinese": "敏捷的",
+        "usage_context": "描述台商對於市場變動反應迅速且動作快的特性",
+        "example_sentence": "Taiwanese firms stay agile to respond quickly to market shifts.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Daring",
+        "chinese": "大膽的",
+        "usage_context": "形容台商具備不怕失敗且敢於進入未知市場膽識",
+        "example_sentence": "These daring businessmen thrive even in very difficult environments.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Ambitious",
+        "chinese": "有野心的",
+        "usage_context": "描述台商在追求卓越技術與市場地位時的高鬥志",
+        "example_sentence": "Our ambitious entrepreneurs never stop pursuing global excellence.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "People pleaser",
+        "chinese": "討好型人格",
+        "usage_context": "幽默形容台商以客戶需求為先且具高度服務性格",
+        "example_sentence": "Being a people pleaser helps us serve our global clients.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Near-shoring",
+        "chinese": "近岸外包",
+        "usage_context": "討論台商在匈牙利或墨西哥設廠以靠近客戶市場",
+        "example_sentence": "Near-shoring in Mexico allows us to serve US clients better.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Customer First",
+        "chinese": "客戶至上",
+        "usage_context": "描述台商跟隨客戶需求到世界各地設廠的服務精神",
+        "example_sentence": "We follow a Customer First spirit wherever our clients go.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Supply chain",
+        "chinese": "供應鏈",
+        "usage_context": "指台灣廠商散布全球且具備極強連結性的生產網絡",
+        "example_sentence": "Resilient supply chain is now a major global trend.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Silicon Fortress",
+        "chinese": "矽堡壘",
+        "usage_context": "強調台灣具有戰略價值並能號召盟友共同防衛堡壘",
+        "example_sentence": "Taiwan invites allies to build a Silicon Fortress together.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Silicon Shield",
+        "chinese": "矽盾",
+        "usage_context": "描述以晶片實力換取安全但帶有不安全感的詞彙",
+        "example_sentence": "People use the Silicon Shield to describe Taiwan's safety.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Strategic value",
+        "chinese": "戰略價值",
+        "usage_context": "指台灣在科技與安全領域中吸引盟友合作關鍵優勢",
+        "example_sentence": "Our strategic value draws international partners to work with us.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Hallowing out",
+        "chinese": "掏空",
+        "usage_context": "討論產業外移是否導致核心技術或人才流失的擔憂",
+        "example_sentence": "Many worry that expansion might lead to hallowing out Taiwan.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Semiconductor industry",
+        "chinese": "半導體產業",
+        "usage_context": "指台灣在全球供應鏈中扮演關鍵角色的晶片製作領域",
+        "example_sentence": "Taiwan is globally recognized for its leading semiconductor industry.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Hardworking",
+        "chinese": "辛勤工作的",
+        "usage_context": "形容支撐台灣半導體奇蹟的工程師們所付出的努力",
+        "example_sentence": "The miracle was built by hardworking engineers over decades.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Visionary",
+        "chinese": "有遠見的",
+        "usage_context": "描述那些能預見未來產業趨勢並大膽決策的企業家",
+        "example_sentence": "We are led by visionary entrepreneurs who made bold decisions.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Hidden champion",
+        "chinese": "隱形冠軍",
+        "usage_context": "描述在特定利基市場做到世界領先的安靜支柱企業",
+        "example_sentence": "Taiwan is home to many hidden champions in niche markets.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Backbone",
+        "chinese": "骨幹",
+        "usage_context": "形容那些支撐全球產業運作數十年的安靜力量來源",
+        "example_sentence": "Small firms serve as the quiet backbone of global supply chains.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      }
+    ]
+  },
+  {
+    "name": "L8",
+    "description": "",
+    "words": [
+      {
+        "english": "Overlap",
+        "chinese": "交集",
+        "usage_context": "描述在對方的喜好與台灣在地故事中尋找共通點",
+        "example_sentence": "We need to find the overlap between your interest and Taiwan.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Working tour",
+        "chinese": "步行導覽",
+        "usage_context": "指由在地導遊帶領並透過走路深入探索城市的活動",
+        "example_sentence": "My friend is a working tour guide who knows many local stories.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Fighter jet",
+        "chinese": "戰鬥機",
+        "usage_context": "描述岡山天空特有的景觀以及在地人成長的聲音記憶",
+        "example_sentence": "I grew up listening to the sound of fighter jets flying overhead.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Aviation town",
+        "chinese": "航空鎮",
+        "usage_context": "使用複合名詞將岡山定義為具備深厚飛行歷史的城市",
+        "example_sentence": "Gangshan is an aviation town with a long military history.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Museum",
+        "chinese": "博物館",
+        "usage_context": "泛指收藏歷史或文化藝術品且需要安靜參觀的場所",
+        "example_sentence": "Some people enjoy visiting a museum to learn about local history.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Outdoor",
+        "chinese": "戶外的",
+        "usage_context": "描述與大自然接觸且遠離城市室內空間的旅遊類型",
+        "example_sentence": "Many tourists are into outdoor activities like hiking and surfing.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Hiking",
+        "chinese": "健行",
+        "usage_context": "指在山間或自然步道中步行運動並享受風景的活動",
+        "example_sentence": "Taiwan offers many beautiful trails for hiking enthusiasts.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Camping",
+        "chinese": "露營",
+        "usage_context": "描述在戶外過夜並親近自然環境的一種休閒旅遊方式",
+        "example_sentence": "Camping in the mountains is a great way to escape the city.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Foodie",
+        "chinese": "美食家",
+        "usage_context": "形容對食物充滿熱情且熱衷於挖掘在地美味的旅遊者",
+        "example_sentence": "A foodie would love exploring the night markets in Taiwan.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Decades",
+        "chinese": "數十年",
+        "usage_context": "用於描述歷史發展或個人記憶中一段漫長的時間跨度",
+        "example_sentence": "These military planes have flown over my town for decades.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Compound noun",
+        "chinese": "複合名詞",
+        "usage_context": "指將兩個名詞組合在一起以創造更精準印象的文法",
+        "example_sentence": "Use a compound noun like tech guy to create a clearer image.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Director's Lens",
+        "chinese": "導演之眼",
+        "usage_context": "描述說故事時要有意識地選擇強調特定細節的技巧",
+        "example_sentence": "Tell your story through a Director's Lens to make it unique.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Narrow down",
+        "chinese": "縮小範圍",
+        "usage_context": "指在分享故事時排除雜訊並專注於特定重點的行為",
+        "example_sentence": "You should narrow down your story to focus on emotional details.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Granularity knob",
+        "chinese": "尺度調節輪",
+        "usage_context": "描述在敘事時調整細節精確度以引發共鳴的修辭法",
+        "example_sentence": "Use the granularity knob to control the details of your story.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Passionate",
+        "chinese": "充滿激情的",
+        "usage_context": "形容講述者對自己的家鄉或故事展現出極高的熱誠",
+        "example_sentence": "You can tell she is passionate about the history of East District.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Guidebook",
+        "chinese": "旅遊指南",
+        "usage_context": "指旅遊時常參考的標準手冊且通常只收錄熱門景點",
+        "example_sentence": "This place is not listed in a guidebook, but it’s very special.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Personal",
+        "chinese": "個人的",
+        "usage_context": "強調在導覽時加入與自己生命經驗相關的私密連結",
+        "example_sentence": "I want to share a personal side of Taiwan that feels more local.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Local",
+        "chinese": "在地的",
+        "usage_context": "描述與當地居民生活息息相關且非大眾觀光性質事物",
+        "example_sentence": "Sharing local stories makes the travel experience much more authentic.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Punch line",
+        "chinese": "點睛之筆",
+        "usage_context": "指在故事結尾加入一個有力且具備記憶點的強力詞彙",
+        "example_sentence": "A clever punch line helps your story stay in the listener's mind.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Hail Mary",
+        "chinese": "孤注一擲",
+        "usage_context": "借用美式足球術語來形容在最後關頭拚搏的冒險策略",
+        "example_sentence": "The company's new plan is a Hail Mary to save the business.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Rooted Cosmopolitanism",
+        "chinese": "有根的世界觀",
+        "usage_context": "描述在探索世界的同時也深刻理解並愛護自身文化",
+        "example_sentence": "Rooted Cosmopolitanism means exploring the world while knowing your home.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Hidden gems",
+        "chinese": "隱藏寶石",
+        "usage_context": "描述那些不為大眾所知但極具價值的私房景點或故事",
+        "example_sentence": "Let me show you the hidden gems that Google or AI won't find.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Diving",
+        "chinese": "潛水",
+        "usage_context": "描述在綠島或墾丁探索豐富海洋生態的旅遊活動",
+        "example_sentence": "We went diving in Kenting to see the beautiful coral reefs.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Surfing",
+        "chinese": "衝浪",
+        "usage_context": "指在宜蘭頭城或台東海岸追逐浪花的戶外極限運動",
+        "example_sentence": "Yilan is a popular spot for surfing during the summer.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Island hopping by train",
+        "chinese": "火車環島",
+        "usage_context": "指利用鐵路運輸串聯全台，探索不同縣市風貌的旅遊方式",
+        "example_sentence": "Island hopping by train is a great way to see Taiwan's scenery.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Tea tasting",
+        "chinese": "品茶",
+        "usage_context": "描述前往阿里山或坪林體驗台灣高山茶文化的行程",
+        "example_sentence": "We spent the afternoon tea tasting at a local tea house.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Night market tour",
+        "chinese": "逛夜市",
+        "usage_context": "描述透過品嚐在地小吃來體驗台灣庶民美食文化的行程",
+        "example_sentence": "Every night market tour must include tasting stinky tofu.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Temple pilgrimage",
+        "chinese": "繞境",
+        "usage_context": "指跟隨神明轎班徒步長征，體現台灣民間信仰的活動",
+        "example_sentence": "The Mazu temple pilgrimage is a major spiritual event in Taiwan.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Snorkeling",
+        "chinese": "浮潛",
+        "usage_context": "描述在近岸海面觀察熱帶魚群，適合各年齡層的活動",
+        "example_sentence": "We enjoyed snorkeling in the clear waters of Green Island.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Cycling",
+        "chinese": "騎單車",
+        "usage_context": "指利用完善的自行車道環島或探索城市邊陲的運動",
+        "example_sentence": "Cycling around the island is a challenge for many travelers.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Hot spring soaking",
+        "chinese": "泡溫泉",
+        "usage_context": "描述在北投或礁溪享受天然礦泉以放鬆身心的療癒行程",
+        "example_sentence": "Hot spring soaking is the best way to relax in winter.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "River tracing",
+        "chinese": "溯溪",
+        "usage_context": "指沿著溪谷逆流而上，結合攀爬與跳水的冒險活動",
+        "example_sentence": "River tracing in Hualien is an exciting outdoor adventure.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "HSR",
+        "chinese": "高鐵",
+        "usage_context": "描述連接台灣南北，提供旅客極速往返各大城市的鐵路",
+        "example_sentence": "The HSR is the fastest way to travel from Taipei to Kaohsiung.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "Shuttle bus",
+        "chinese": "接駁車",
+        "usage_context": "指往返於車站、機場或熱門景點間提供短程運輸的車輛",
+        "example_sentence": "We took a shuttle bus from the station to our hotel.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "MRT",
+        "chinese": "捷運",
+        "usage_context": "描述在台北、高雄等大都市中運作且班次密集的城市軌道",
+        "example_sentence": "The MRT makes it very convenient to explore Taipei City.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      },
+      {
+        "english": "East Rift Valley",
+        "chinese": "花東縱谷",
+        "usage_context": "描述位於中央與海岸山脈之間，風景優美的狹長谷地",
+        "example_sentence": "The East Rift Valley offers some of Taiwan's most stunning views.",
+        "part_of_speech": "",
+        "example_translation": "",
+        "related_words": [],
+        "collocations": []
+      }
+    ]
+  }
+];
+
+let currentUnitIndex = 0;
+let currentCardIndex = 0;
+let isFlipped = false;
+
+// ── YouGlish widget ──
+let ygWidget = null;
+let pendingWord = null;
+let ygFallbackWords = [];
+let ygFallbackIndex = 0;
+
+function onYouglishAPIReady() {
+  ygWidget = new YG.Widget('yg-widget', {
+    width: 640,
+    components: 92,
+    autoStart: 0,
+    events: {
+      'onFetchDone': function(event) {
+        if (event.totalResult === 0 && ygFallbackIndex < ygFallbackWords.length) {
+          ygWidget.fetch(ygFallbackWords[ygFallbackIndex], 'english');
+          ygFallbackIndex++;
+        }
+      }
+    }
+  });
+  if (pendingWord) {
+    ygFetchWithFallback(pendingWord);
+    pendingWord = null;
+  }
+}
+
+function ygFetchWithFallback(word) {
+  ygFallbackWords = word.split(/\s+/).filter(w => w.length > 2);
+  ygFallbackIndex = 0;
+  ygWidget.fetch(word, 'english');
+}
+
+function loadYouGlish() {
+  const word = UNITS[currentUnitIndex].words[currentCardIndex];
+  document.getElementById('listen-btn').style.display = 'none';
+  document.getElementById('youglish-section').style.display = 'block';
+  if (ygWidget) {
+    ygFetchWithFallback(word.english);
+  } else {
+    pendingWord = word.english;
+  }
+}
+
+// ── 畫面切換 ──
+function showUnitList() {
+  document.getElementById('unit-list').style.display = 'block';
+  document.getElementById('word-list').style.display = 'none';
+  document.getElementById('flashcard-view').style.display = 'none';
+}
+
+function showWordList() {
+  document.getElementById('unit-list').style.display = 'none';
+  document.getElementById('word-list').style.display = 'block';
+  document.getElementById('flashcard-view').style.display = 'none';
+}
+
+// ── 單元列表 ──
+function renderUnitList() {
+  const container = document.getElementById('units-container');
+  container.innerHTML = '';
+  UNITS.forEach((unit, i) => {
+    const card = document.createElement('div');
+    card.className = 'unit-card';
+    card.innerHTML = `
+      <div>
+        <div class="unit-card-name">${unit.name}</div>
+        ${unit.description ? `<div class="unit-card-desc">${unit.description}</div>` : ''}
+      </div>
+      <div class="unit-card-count">${unit.words.length} 個單字</div>
+    `;
+    card.onclick = () => openUnit(i);
+    container.appendChild(card);
+  });
+}
+
+// ── 單字列表 ──
+function openUnit(unitIndex) {
+  currentUnitIndex = unitIndex;
+  const unit = UNITS[unitIndex];
+
+  document.getElementById('wl-title').textContent = unit.name;
+  document.getElementById('wl-desc').textContent = unit.description;
+
+  const grid = document.getElementById('word-grid');
+  grid.innerHTML = '';
+  unit.words.forEach((word, i) => {
+    const tile = document.createElement('div');
+    tile.className = 'word-tile';
+    tile.innerHTML = `
+      <div class="word-tile-num">${i + 1}</div>
+      <div class="word-tile-en">${word.english}</div>
+      <div class="word-tile-zh">${word.chinese}</div>
+    `;
+    tile.onclick = () => openWord(i);
+    grid.appendChild(tile);
+  });
+
+  document.getElementById('unit-list').style.display = 'none';
+  document.getElementById('word-list').style.display = 'block';
+}
+
+// ── 單字卡 ──
+function openWord(wordIndex) {
+  currentCardIndex = wordIndex;
+  document.getElementById('word-list').style.display = 'none';
+  document.getElementById('flashcard-view').style.display = 'block';
+  document.getElementById('view-unit-title').textContent = UNITS[currentUnitIndex].name;
+  renderCard();
+}
+
+function renderCard() {
+  const unit = UNITS[currentUnitIndex];
+  const word = unit.words[currentCardIndex];
+  const total = unit.words.length;
+
+  isFlipped = false;
+  document.getElementById('card-stack').classList.remove('flipped');
+
+  // 重置 YouGlish
+  document.getElementById('youglish-section').style.display = 'none';
+  document.getElementById('listen-btn').style.display = 'block';
+
+  // 正面
+  document.getElementById('card-pos').textContent = word.part_of_speech ? `(${word.part_of_speech})` : '';
+  document.getElementById('card-english').textContent = word.english;
+  document.getElementById('front-hint-bottom').textContent = word.chinese || '';
+
+  // 背面
+  document.getElementById('back-english').textContent = word.english;
+  document.getElementById('back-usage').textContent = word.usage_context;
+  document.getElementById('back-pos').textContent = word.part_of_speech ? `（${word.part_of_speech}）` : '';
+  document.getElementById('back-chinese').textContent = word.chinese;
+
+  const exWrap = document.getElementById('back-example-wrap');
+  if (word.example_sentence) {
+    document.getElementById('back-example').textContent = word.example_sentence;
+    document.getElementById('back-example-trans').textContent = word.example_translation;
+    exWrap.style.display = 'block';
+  } else {
+    exWrap.style.display = 'none';
+  }
+
+  const relatedWrap = document.getElementById('back-related-wrap');
+  if (word.related_words.length > 0) {
+    document.getElementById('back-related').innerHTML =
+      word.related_words.map(w => `<span class="tag">${w}</span>`).join('');
+    relatedWrap.style.display = 'block';
+  } else {
+    relatedWrap.style.display = 'none';
+  }
+
+  const collocationsWrap = document.getElementById('back-collocations-wrap');
+  if (word.collocations.length > 0) {
+    document.getElementById('back-collocations').innerHTML =
+      word.collocations.map(c => `<span class="tag">${c}</span>`).join('');
+    collocationsWrap.style.display = 'block';
+  } else {
+    collocationsWrap.style.display = 'none';
+  }
+
+  document.getElementById('progress-text').textContent = `${currentCardIndex + 1} / ${total}`;
+  document.getElementById('progress-fill').style.width = `${((currentCardIndex + 1) / total) * 100}%`;
+
+  document.getElementById('prev-btn').disabled = currentCardIndex === 0;
+  // 最後一張改成「回列表」
+  const nextBtn = document.getElementById('next-btn');
+  if (currentCardIndex === total - 1) {
+    nextBtn.textContent = '回到列表 ↩';
+    nextBtn.disabled = false;
+  } else {
+    nextBtn.textContent = '下一張 →';
+    nextBtn.disabled = false;
+  }
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('card-stack').classList.toggle('flipped', isFlipped);
+}
+
+function prevCard() {
+  if (currentCardIndex > 0) {
+    currentCardIndex--;
+    renderCard();
+  }
+}
+
+function nextCard() {
+  const total = UNITS[currentUnitIndex].words.length;
+  if (currentCardIndex < total - 1) {
+    currentCardIndex++;
+    renderCard();
+  } else {
+    showWordList();
+  }
+}
+
+// 鍵盤操作
+document.addEventListener('keydown', e => {
+  if (document.getElementById('flashcard-view').style.display !== 'block') return;
+  if (e.key === 'ArrowLeft') prevCard();
+  else if (e.key === 'ArrowRight') nextCard();
+  else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+});
+
+renderUnitList();
+
+(function() {
+  var tag = document.createElement('script');
+  tag.src = "https://youglish.com/public/emb/widget.js";
+  var first = document.getElementsByTagName('script')[0];
+  first.parentNode.insertBefore(tag, first);
+})();
+</script>
+</body>
+</html>
