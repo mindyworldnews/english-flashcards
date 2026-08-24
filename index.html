@@ -1,534 +1,349 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>英語韌性課 單字卡</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英語韌性課 單字卡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EDEADD;
+    --surface:#FFFFFF;
+    --surface-2:#F6F1E3;
+    --surface-3:#EFE8D4;
+    --ink:#201C13;
+    --ink-soft:#5C5645;
+    --ink-faint:#9A927A;
+    --line:#DAD3BC;
+    --line-strong:#C7BE9F;
+    --accent:#A9762C;
+    --on-accent:#FBF7EC;
+    --on-accent-soft:rgba(251,247,236,.76);
+    --shadow: 0 1px 2px rgba(32,28,19,.06), 0 10px 24px -12px rgba(32,28,19,.22);
 
-    :root {
-      --cream: #f7f2e4;
-      --cream-dark: #ede6d0;
-      --gold: #8b7a4a;
-      --gold-light: #b3a070;
-      --text: #2c2416;
-      --text-mid: #6b5e3e;
-      --text-muted: #a09070;
-      --divider: #d4c8a0;
-      --tag-bg: #e8e0c8;
-    }
+    --u1:#B8402A; --u2:#2B5C82; --u3:#1D7566; --u4:#6F3A66; --u5:#4B7A38;
+    --u6:#9C6B22; --u7:#C4632A; --u8:#21748A; --u9:#99315F;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#15130E;
+      --surface:#211D16;
+      --surface-2:#28241B;
+      --surface-3:#312B1F;
+      --ink:#F3EFE2;
+      --ink-soft:#B7AF9B;
+      --ink-faint:#7C7461;
+      --line:#3B3527;
+      --line-strong:#4B4430;
+      --accent:#D4A24C;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 16px 32px -16px rgba(0,0,0,.55);
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-      background: #e8e0cc;
-      color: var(--text);
-      min-height: 100vh;
+      --u1:#E0684C; --u2:#5B93C2; --u3:#3FAE99; --u4:#A868A0; --u5:#82B665;
+      --u6:#D9A248; --u7:#EE8F52; --u8:#55AFC4; --u9:#D06592;
     }
+  }
 
-    /* ── 版頭 ── */
-    .header {
-      background: #3a2e18;
-      color: #f7f2e4;
-      padding: 18px 24px;
-    }
-    .header-title {
-      font-size: 1rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-    }
-    .header-sub {
-      font-size: 0.78rem;
-      color: var(--gold-light);
-      margin-top: 2px;
-    }
+  .acc-1{ --c:var(--u1); } .acc-2{ --c:var(--u2); } .acc-3{ --c:var(--u3); }
+  .acc-4{ --c:var(--u4); } .acc-5{ --c:var(--u5); } .acc-6{ --c:var(--u6); }
+  .acc-7{ --c:var(--u7); } .acc-8{ --c:var(--u8); } .acc-9{ --c:var(--u9); }
 
-    /* ── 單元列表 ── */
-    #unit-list {
-      max-width: 680px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-    #unit-list h2 {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 14px;
-    }
-    .unit-card {
-      background: var(--cream);
-      border-left: 4px solid var(--gold);
-      border-radius: 10px;
-      padding: 18px 22px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 3px 3px 0 var(--cream-dark);
-      transition: transform 0.12s, box-shadow 0.12s;
-    }
-    .unit-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 4px 5px 0 var(--cream-dark);
-    }
-    .unit-card-name {
-      font-size: 0.98rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-    .unit-card-desc {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 3px;
-    }
-    .unit-card-count {
-      font-size: 0.75rem;
-      color: var(--gold);
-      font-weight: 600;
-      white-space: nowrap;
-      margin-left: 16px;
-    }
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Noto Sans TC", -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3{ font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif; margin:0; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace; }
+  button{ font-family:inherit; }
+  ::selection{ background:var(--accent); color:var(--on-accent); }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
 
-    /* ── 單字卡區 ── */
-    #flashcard-view {
-      display: none;
-      max-width: 680px;
-      margin: 32px auto;
-      padding: 0 20px 60px;
-    }
+  .app-bar{
+    padding:18px clamp(18px,4vw,30px) 16px;
+    border-bottom:1px solid var(--line);
+  }
+  .app-bar-title{ font-size:1.05rem; font-weight:700; letter-spacing:.02em; }
+  .app-bar-sub{ font-size:.78rem; color:var(--ink-faint); margin-top:2px; }
 
-    .back-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      padding: 0;
-      margin-bottom: 18px;
-    }
-    .back-btn:hover { color: var(--text); }
+  .screen{
+    max-width:920px;
+    margin:0 auto;
+    padding:26px clamp(18px,4vw,30px) 60px;
+  }
+  .screen-label{
+    font-size:.7rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-faint); margin-bottom:16px;
+  }
 
-    .unit-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-    .unit-desc {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 24px;
-    }
+  .back-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    background:none; border:none; cursor:pointer; padding:4px 0;
+    color:var(--ink-soft); font-size:.85rem; font-weight:500;
+    margin-bottom:16px;
+  }
+  .back-btn:hover{ color:var(--ink); }
 
-    /* 進度 */
-    .progress-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-    .progress-text {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    .progress-bar {
-      height: 3px;
-      background: var(--divider);
-      border-radius: 2px;
-      margin-bottom: 22px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: var(--gold);
-      border-radius: 2px;
-      transition: width 0.3s ease;
-    }
+  /* ── 單元選擇：印章磚 ── */
+  .unit-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(216px,1fr));
+    gap:12px;
+  }
+  .unit-tile{
+    position:relative;
+    background:var(--c);
+    color:var(--on-accent);
+    border-radius:14px;
+    padding:16px 16px 14px;
+    cursor:pointer;
+    border:none;
+    text-align:left;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+    transition:transform .14s ease, box-shadow .14s ease;
+  }
+  .unit-tile:hover{ transform:translateY(-3px); box-shadow:0 12px 22px -12px rgba(0,0,0,.4); }
+  .unit-tile-top{ display:flex; align-items:center; justify-content:space-between; }
+  .unit-index{
+    font-size:.72rem; font-weight:600; letter-spacing:.06em;
+    border:1px solid var(--on-accent-soft);
+    border-radius:999px;
+    width:30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .unit-stamp-mark{ font-size:.95rem; opacity:.85; }
+  .unit-tile-body{ display:flex; flex-direction:column; gap:6px; }
+  .unit-name{ font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif; font-size:1.05rem; font-weight:700; }
+  .unit-desc{ font-size:.78rem; color:var(--on-accent-soft); line-height:1.5; }
+  .unit-tile-foot{
+    display:flex; align-items:center; justify-content:space-between;
+    padding-top:12px; border-top:1px dashed var(--on-accent-soft);
+    font-size:.72rem; font-weight:600; letter-spacing:.03em;
+  }
 
-    /* ── 翻卡 ── */
-    .card-stack {
-      position: relative;
-      margin-bottom: 20px;
-      cursor: pointer;
-    }
-    /* 堆疊紙張效果 */
-    .card-stack::before {
-      content: '';
-      position: absolute;
-      inset: 6px -4px -8px 4px;
-      background: #ddd4b8;
-      border-left: 4px solid #a09060;
-      border-radius: 10px;
-      z-index: 0;
-    }
-    .card-stack::after {
-      content: '';
-      position: absolute;
-      inset: 3px -2px -4px 2px;
-      background: #e8e0c4;
-      border-left: 4px solid #a8986a;
-      border-radius: 10px;
-      z-index: 1;
-    }
-    .card-scene {
-      width: 100%;
-      height: 300px;
-      perspective: 1200px;
-      position: relative;
-      z-index: 2;
-    }
-    @media (max-width: 500px) {
-      .card-scene { height: 340px; }
-    }
-    .card-flipper {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .card-stack.flipped .card-flipper {
-      transform: rotateY(180deg);
-    }
-    .card-front, .card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      background: var(--cream);
-      border-left: 5px solid var(--gold);
-      border-radius: 10px;
-      padding: 28px 30px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 2px 12px rgba(60,40,0,0.10);
-    }
-    .card-back {
-      transform: rotateY(180deg);
-      overflow-y: auto;
-    }
+  /* ── 單字列表 ── */
+  .word-header{
+    border-radius:14px;
+    padding:16px 18px;
+    background:color-mix(in srgb, var(--c) 22%, var(--surface));
+    margin-bottom:16px;
+  }
+  .word-header-name{ font-size:1.08rem; font-weight:700; font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif; }
+  .word-header-desc{ font-size:.8rem; color:var(--ink-soft); margin-top:4px; }
+  .word-header-meta{ margin-top:10px; font-size:.74rem; color:var(--c); font-weight:600; }
+  .word-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    gap:10px;
+  }
+  .word-tile{
+    background:color-mix(in srgb, var(--c) 10%, var(--surface));
+    border-left:3px solid var(--c);
+    border-radius:10px;
+    padding:13px 15px;
+    cursor:pointer;
+    transition:transform .12s ease;
+  }
+  .word-tile:hover{ transform:translateY(-2px); }
+  .word-tile-en{ font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif; font-size:1.08rem; font-weight:700; }
+  .word-tile-zh{ font-size:.83rem; color:var(--ink-soft); margin-top:3px; }
 
-    /* VOCAB 標籤 */
-    .vocab-badge {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background: var(--gold);
-      color: var(--cream);
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      padding: 5px 13px;
-      border-radius: 0 10px 0 8px;
-    }
+  /* ── 單字卡 ── */
+  .card-wrap{ max-width:440px; margin:0 auto; }
+  .progress-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:8px; font-size:.78rem; color:var(--ink-soft);
+  }
+  .progress-track{ height:4px; border-radius:2px; background:var(--surface-3); overflow:hidden; margin-bottom:20px; }
+  .progress-fill{ height:100%; background:var(--c); border-radius:2px; transition:width .25s ease; }
 
-    /* 正面 */
-    .card-hint {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-align: right;
-      margin-bottom: auto;
-    }
-    .front-pos {
-      font-size: 0.78rem;
-      color: var(--gold);
-      margin-bottom: 6px;
-    }
-    .front-english {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 2.4rem;
-      font-weight: normal;
-      color: var(--text);
-      line-height: 1.2;
-      margin-bottom: 8px;
-    }
-    .front-hint-bottom {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      margin-top: auto;
-    }
+  .card-scene{ perspective:1400px; margin-bottom:16px; }
+  .card-flip{
+    position:relative; width:100%; height:320px;
+    transform-style:preserve-3d;
+    transition:transform .5s cubic-bezier(.4,0,.2,1);
+    cursor:pointer;
+  }
+  .card-scene.flipped .card-flip{ transform:rotateY(180deg); }
+  @media (max-width:480px){ .card-flip{ height:360px; } }
+  @media (prefers-reduced-motion:reduce){ .card-flip{ transition:none; } }
 
-    /* 背面 */
-    .back-english {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 1.15rem;
-      color: var(--text-mid);
-      margin-bottom: 4px;
-    }
-    .back-usage {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      line-height: 1.6;
-      margin-bottom: 14px;
-    }
-    .card-divider {
-      border: none;
-      border-top: 1px solid var(--divider);
-      margin-bottom: 14px;
-    }
-    .back-translation-row {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-    .back-pos {
-      font-size: 0.85rem;
-      color: var(--gold);
-    }
-    .back-chinese {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.3;
-    }
-    .back-example-label {
-      font-size: 0.82rem;
-      color: var(--gold);
-      font-weight: 600;
-      margin-right: 4px;
-    }
-    .back-example {
-      font-size: 0.87rem;
-      color: var(--text);
-      line-height: 1.65;
-      margin-bottom: 5px;
-    }
-    .back-example-trans {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-      margin-bottom: 12px;
-    }
-    .tags-label {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 5px;
-      margin-top: 10px;
-    }
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-    }
-    .tag {
-      background: var(--tag-bg);
-      border-radius: 5px;
-      padding: 3px 9px;
-      font-size: 0.76rem;
-      color: var(--text-mid);
-    }
+  .card-face{
+    position:absolute; inset:0;
+    border-radius:18px;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    padding:24px 26px;
+    box-shadow:var(--shadow);
+    display:flex; flex-direction:column;
+  }
+  .card-front{ background:var(--c); color:var(--on-accent); justify-content:space-between; }
+  .card-front-top{ display:flex; align-items:center; justify-content:space-between; }
+  .card-front-tag{
+    font-size:.66rem; letter-spacing:.14em; font-weight:600;
+    border:1px solid var(--on-accent-soft); border-radius:999px; padding:4px 10px;
+  }
+  .card-front-hint{ font-size:.7rem; color:var(--on-accent-soft); }
+  .card-front-word{
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-size:clamp(1.7rem,7vw,2.5rem);
+    font-weight:700; line-height:1.15;
+  }
+  .card-front-pos{ font-size:.8rem; color:var(--on-accent-soft); margin-bottom:6px; }
+  .card-front-bottom{ font-size:.85rem; color:var(--on-accent-soft); }
 
-    /* YouGlish 區塊 */
-    #youglish-section {
-      margin-top: 10px;
-      background: var(--cream);
-      border-left: 5px solid var(--gold);
-      border-radius: 10px;
-      padding: 18px 22px 22px;
-      box-shadow: 3px 3px 0 var(--cream-dark);
-    }
-    .youglish-label {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 14px;
-    }
+  .card-back{
+    background:var(--surface);
+    border:1px solid var(--line);
+    transform:rotateY(180deg);
+    overflow-y:auto;
+    gap:12px;
+  }
+  .card-back-toprow{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+  .card-back-word{ font-size:.76rem; font-weight:700; letter-spacing:.1em; color:var(--c); }
+  .card-back-pos{ font-size:.76rem; color:var(--ink-faint); }
+  .card-back-zh{ font-size:1.4rem; font-weight:700; }
+  .card-back-block{ display:flex; flex-direction:column; gap:4px; }
+  .card-back-label{
+    font-size:.64rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint);
+  }
+  .card-back-text{ font-size:.86rem; color:var(--ink-soft); line-height:1.6; }
+  .card-back-example{
+    background:var(--surface-2); border-radius:10px; padding:12px 14px;
+    font-size:.86rem; color:var(--ink); line-height:1.6;
+    border-left:2px solid var(--c);
+  }
+  .card-back-example-trans{ font-size:.8rem; color:var(--ink-soft); margin-top:6px; line-height:1.55; }
+  .tags{ display:flex; flex-wrap:wrap; gap:6px; }
+  .tag{
+    background:color-mix(in srgb, var(--c) 14%, var(--surface));
+    border-radius:6px; padding:4px 10px; font-size:.78rem; color:var(--ink-soft);
+  }
 
-    /* 導航按鈕 */
-    .nav-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .nav-btn {
-      flex: 1;
-      padding: 13px;
-      border-radius: 8px;
-      border: 2px solid var(--divider);
-      background: var(--cream);
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s, color 0.15s;
-      color: var(--text-mid);
-    }
-    .nav-btn:hover:not(:disabled) {
-      border-color: var(--gold);
-      background: var(--gold);
-      color: var(--cream);
-    }
-    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .flip-btn {
-      flex: 1.2;
-      padding: 13px;
-      border-radius: 8px;
-      border: none;
-      background: var(--gold);
-      color: var(--cream);
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .flip-btn:hover { background: #6e6038; }
+  .nav-row{ display:flex; gap:8px; margin-bottom:12px; }
+  .nav-btn{
+    flex:1; padding:12px; border-radius:10px; border:1px solid var(--line);
+    background:var(--surface); color:var(--ink-soft); font-size:.85rem; font-weight:600; cursor:pointer;
+    transition:border-color .15s, color .15s;
+  }
+  .nav-btn:hover:not(:disabled){ border-color:var(--c); color:var(--ink); }
+  .nav-btn:disabled{ opacity:.35; cursor:not-allowed; }
+  .flip-btn{ flex:1.3; background:var(--c); color:var(--on-accent); border-color:transparent; }
+  .flip-btn:hover{ opacity:.92; color:var(--on-accent); }
 
-    /* ── 聽發音按鈕 ── */
-    .listen-btn {
-      width: 100%;
-      padding: 13px;
-      border-radius: 8px;
-      border: 2px dashed var(--divider);
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin-bottom: 16px;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    .listen-btn:hover {
-      border-color: var(--gold);
-      color: var(--gold);
-    }
+  .listen-btn{
+    width:100%; padding:12px; border-radius:10px; border:1px dashed var(--line-strong);
+    background:transparent; color:var(--ink-soft); font-size:.85rem; font-weight:600; cursor:pointer;
+    margin-bottom:14px;
+  }
+  .listen-btn:hover{ border-color:var(--c); color:var(--c); }
 
-    /* ── 單字列表 ── */
-    #word-list {
-      display: none;
-      max-width: 680px;
-      margin: 32px auto;
-      padding: 0 20px 60px;
-    }
-    .word-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-    .word-tile {
-      background: var(--cream);
-      border-left: 4px solid var(--gold);
-      border-radius: 10px;
-      padding: 14px 16px;
-      cursor: pointer;
-      box-shadow: 2px 2px 0 var(--cream-dark);
-      transition: transform 0.12s, box-shadow 0.12s;
-    }
-    .word-tile:hover {
-      transform: translateY(-2px);
-      box-shadow: 3px 4px 0 var(--cream-dark);
-    }
-    .word-tile-en {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 1.25rem;
-      color: var(--text);
-      margin-bottom: 5px;
-      line-height: 1.3;
-    }
-    .word-tile-zh {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-  </style>
+  #youglish-section{
+    display:none;
+    border:1px solid var(--line); border-radius:12px; padding:16px;
+  }
+  .youglish-label{
+    font-size:.66rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--ink-faint); margin-bottom:12px;
+  }
+</style>
 </head>
 <body>
 
-<header class="header">
-  <div class="header-title">英語韌性課</div>
-  <div class="header-sub">單字卡練習</div>
-</header>
+<div class="app-bar">
+  <div class="app-bar-title">英語韌性課</div>
+  <div class="app-bar-sub">單字通關</div>
+</div>
 
 <!-- 1. 單元列表 -->
-<div id="unit-list">
-  <h2>選擇單元</h2>
-  <div id="units-container"></div>
+<div class="screen" id="unit-list">
+  <h2 class="screen-label">選擇單元</h2>
+  <div class="unit-grid" id="units-container"></div>
 </div>
 
 <!-- 2. 單字列表 -->
-<div id="word-list">
+<div class="screen" id="word-list" style="display:none;">
   <button class="back-btn" onclick="showUnitList()">← 回到單元列表</button>
-  <div class="unit-title" id="wl-title"></div>
-  <div class="unit-desc" id="wl-desc" style="margin-bottom:20px;"></div>
+  <div class="word-header" id="wl-header"></div>
   <div class="word-grid" id="word-grid"></div>
 </div>
 
 <!-- 3. 單字卡 -->
-<div id="flashcard-view">
+<div class="screen" id="flashcard-view" style="display:none;">
   <button class="back-btn" onclick="showWordList()">← 回到單字列表</button>
-  <div class="unit-title" id="view-unit-title"></div>
 
-  <div class="progress-row">
-    <span class="progress-text" id="progress-text"></span>
-  </div>
-  <div class="progress-bar">
-    <div class="progress-fill" id="progress-fill"></div>
-  </div>
+  <div class="card-wrap">
+    <div class="progress-row">
+      <span id="progress-text"></span>
+      <span id="unit-name-tag"></span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
 
-  <div class="card-stack" id="card-stack" onclick="flipCard()">
-    <div class="card-scene">
-      <div class="card-flipper" id="card-flipper">
-
-        <div class="card-front">
-          <div class="vocab-badge">V O C A B</div>
-          <div class="card-hint">點擊翻面</div>
-          <div class="front-pos" id="card-pos"></div>
-          <div class="front-english" id="card-english"></div>
-          <div class="front-hint-bottom" id="front-hint-bottom"></div>
+    <div class="card-scene" id="card-scene" onclick="flipCard()">
+      <div class="card-flip" id="card-flip">
+        <div class="card-face card-front">
+          <div class="card-front-top">
+            <span class="card-front-tag mono" id="card-tag"></span>
+            <span class="card-front-hint">點擊翻面</span>
+          </div>
+          <div>
+            <div class="card-front-pos" id="card-pos"></div>
+            <div class="card-front-word" id="card-english"></div>
+          </div>
+          <div class="card-front-bottom" id="card-zh-hint"></div>
         </div>
 
-        <div class="card-back">
-          <div class="vocab-badge">V O C A B</div>
-          <div class="back-english" id="back-english"></div>
-          <div class="back-usage" id="back-usage"></div>
-          <hr class="card-divider">
-          <div class="back-translation-row">
-            <span class="back-pos" id="back-pos"></span>
-            <span class="back-chinese" id="back-chinese"></span>
+        <div class="card-face card-back">
+          <div class="card-back-toprow">
+            <span class="card-back-word mono" id="back-english"></span>
+            <span class="card-back-pos" id="back-pos"></span>
           </div>
-          <div id="back-example-wrap">
-            <div class="back-example">
-              <span class="back-example-label">例：</span><span id="back-example"></span>
-            </div>
-            <div class="back-example-trans" id="back-example-trans"></div>
+          <span class="card-back-zh" id="back-chinese"></span>
+
+          <div class="card-back-block" id="back-usage-wrap">
+            <span class="card-back-label">使用時機</span>
+            <p class="card-back-text" id="back-usage"></p>
           </div>
-          <div id="back-related-wrap">
-            <div class="tags-label">相關詞</div>
+
+          <div class="card-back-block" id="back-example-wrap">
+            <span class="card-back-label">例句</span>
+            <p class="card-back-example" id="back-example"></p>
+            <p class="card-back-example-trans" id="back-example-trans"></p>
+          </div>
+
+          <div class="card-back-block" id="back-related-wrap">
+            <span class="card-back-label">相關詞</span>
             <div class="tags" id="back-related"></div>
           </div>
-          <div id="back-collocations-wrap">
-            <div class="tags-label">常見搭配</div>
+
+          <div class="card-back-block" id="back-collocations-wrap">
+            <span class="card-back-label">常見搭配</span>
             <div class="tags" id="back-collocations"></div>
           </div>
         </div>
-
       </div>
     </div>
-  </div>
 
-  <div class="nav-row">
-    <button class="nav-btn" id="prev-btn" onclick="prevCard()">← 上一張</button>
-    <button class="flip-btn" onclick="flipCard()">翻面</button>
-    <button class="nav-btn" id="next-btn" onclick="nextCard()">下一張 →</button>
-  </div>
+    <div class="nav-row">
+      <button class="nav-btn" id="prev-btn" onclick="prevCard()">← 上一張</button>
+      <button class="nav-btn flip-btn" onclick="flipCard()">翻面</button>
+      <button class="nav-btn" id="next-btn" onclick="nextCard()">下一張 →</button>
+    </div>
 
-  <button class="listen-btn" id="listen-btn" onclick="loadYouGlish()">▶ 聽真實發音（YouGlish）</button>
+    <button class="listen-btn" id="listen-btn" onclick="loadYouGlish()">🔊 聽真實發音（YouGlish）</button>
 
-  <div id="youglish-section" style="display:none;">
-    <div class="youglish-label">真實發音 · YouGlish</div>
-    <div id="yg-widget"></div>
+    <div id="youglish-section">
+      <div class="youglish-label">真實發音 · YouGlish</div>
+      <div id="yg-widget"></div>
+    </div>
   </div>
 </div>
 
@@ -4255,14 +4070,22 @@ function renderUnitList() {
   const container = document.getElementById('units-container');
   container.innerHTML = '';
   UNITS.forEach((unit, i) => {
-    const card = document.createElement('div');
-    card.className = 'unit-card';
+    const acc = (i % 9) + 1;
+    const card = document.createElement('button');
+    card.className = `unit-tile acc-${acc}`;
     card.innerHTML = `
-      <div>
-        <div class="unit-card-name">${unit.name}</div>
-        ${unit.description ? `<div class="unit-card-desc">${unit.description}</div>` : ''}
+      <div class="unit-tile-top">
+        <span class="unit-index mono">${String(i + 1).padStart(2, '0')}</span>
+        <span class="unit-stamp-mark">✦</span>
       </div>
-      <div class="unit-card-count">${unit.words.length} 個單字</div>
+      <div class="unit-tile-body">
+        <div class="unit-name">${unit.name}</div>
+        ${unit.description ? `<div class="unit-desc">${unit.description}</div>` : ''}
+      </div>
+      <div class="unit-tile-foot">
+        <span>${unit.words.length} 個單字</span>
+        <span>入境 →</span>
+      </div>
     `;
     card.onclick = () => openUnit(i);
     container.appendChild(card);
@@ -4273,15 +4096,21 @@ function renderUnitList() {
 function openUnit(unitIndex) {
   currentUnitIndex = unitIndex;
   const unit = UNITS[unitIndex];
+  const acc = (unitIndex % 9) + 1;
 
-  document.getElementById('wl-title').textContent = unit.name;
-  document.getElementById('wl-desc').textContent = unit.description;
+  const header = document.getElementById('wl-header');
+  header.className = `word-header acc-${acc}`;
+  header.innerHTML = `
+    <div class="word-header-name">${unit.name}</div>
+    ${unit.description ? `<div class="word-header-desc">${unit.description}</div>` : ''}
+    <div class="word-header-meta">共 ${unit.words.length} 個單字</div>
+  `;
 
   const grid = document.getElementById('word-grid');
   grid.innerHTML = '';
   unit.words.forEach((word, i) => {
     const tile = document.createElement('div');
-    tile.className = 'word-tile';
+    tile.className = `word-tile acc-${acc}`;
     tile.innerHTML = `
       <div class="word-tile-en">${word.english}</div>
       <div class="word-tile-zh">${word.chinese}</div>
@@ -4290,8 +4119,7 @@ function openUnit(unitIndex) {
     grid.appendChild(tile);
   });
 
-  document.getElementById('unit-list').style.display = 'none';
-  document.getElementById('word-list').style.display = 'block';
+  showWordList();
 }
 
 // ── 單字卡 ──
@@ -4299,7 +4127,7 @@ function openWord(wordIndex) {
   currentCardIndex = wordIndex;
   document.getElementById('word-list').style.display = 'none';
   document.getElementById('flashcard-view').style.display = 'block';
-  document.getElementById('view-unit-title').textContent = UNITS[currentUnitIndex].name;
+  document.getElementById('unit-name-tag').textContent = UNITS[currentUnitIndex].name;
   renderCard();
 }
 
@@ -4307,48 +4135,57 @@ function renderCard() {
   const unit = UNITS[currentUnitIndex];
   const word = unit.words[currentCardIndex];
   const total = unit.words.length;
+  const acc = (currentUnitIndex % 9) + 1;
 
+  document.getElementById('card-scene').className = `card-scene acc-${acc}`;
   isFlipped = false;
-  document.getElementById('card-stack').classList.remove('flipped');
 
   // 重置 YouGlish
   document.getElementById('youglish-section').style.display = 'none';
   document.getElementById('listen-btn').style.display = 'block';
 
   // 正面
+  document.getElementById('card-tag').textContent = `VOCAB · ${String(currentCardIndex + 1).padStart(2, '0')}`;
   document.getElementById('card-pos').textContent = word.part_of_speech ? `(${word.part_of_speech})` : '';
   document.getElementById('card-english').textContent = word.english;
-  document.getElementById('front-hint-bottom').textContent = word.chinese || '';
+  document.getElementById('card-zh-hint').textContent = word.chinese || '';
 
   // 背面
-  document.getElementById('back-english').textContent = word.english;
-  document.getElementById('back-usage').textContent = word.usage_context;
+  document.getElementById('back-english').textContent = word.english.toUpperCase();
   document.getElementById('back-pos').textContent = word.part_of_speech ? `（${word.part_of_speech}）` : '';
   document.getElementById('back-chinese').textContent = word.chinese;
+
+  const usageWrap = document.getElementById('back-usage-wrap');
+  if (word.usage_context) {
+    document.getElementById('back-usage').textContent = word.usage_context;
+    usageWrap.style.display = 'flex';
+  } else {
+    usageWrap.style.display = 'none';
+  }
 
   const exWrap = document.getElementById('back-example-wrap');
   if (word.example_sentence) {
     document.getElementById('back-example').textContent = word.example_sentence;
-    document.getElementById('back-example-trans').textContent = word.example_translation;
-    exWrap.style.display = 'block';
+    document.getElementById('back-example-trans').textContent = word.example_translation || '';
+    exWrap.style.display = 'flex';
   } else {
     exWrap.style.display = 'none';
   }
 
   const relatedWrap = document.getElementById('back-related-wrap');
-  if (word.related_words.length > 0) {
+  if (word.related_words && word.related_words.length > 0) {
     document.getElementById('back-related').innerHTML =
       word.related_words.map(w => `<span class="tag">${w}</span>`).join('');
-    relatedWrap.style.display = 'block';
+    relatedWrap.style.display = 'flex';
   } else {
     relatedWrap.style.display = 'none';
   }
 
   const collocationsWrap = document.getElementById('back-collocations-wrap');
-  if (word.collocations.length > 0) {
+  if (word.collocations && word.collocations.length > 0) {
     document.getElementById('back-collocations').innerHTML =
       word.collocations.map(c => `<span class="tag">${c}</span>`).join('');
-    collocationsWrap.style.display = 'block';
+    collocationsWrap.style.display = 'flex';
   } else {
     collocationsWrap.style.display = 'none';
   }
@@ -4357,20 +4194,14 @@ function renderCard() {
   document.getElementById('progress-fill').style.width = `${((currentCardIndex + 1) / total) * 100}%`;
 
   document.getElementById('prev-btn').disabled = currentCardIndex === 0;
-  // 最後一張改成「回列表」
   const nextBtn = document.getElementById('next-btn');
-  if (currentCardIndex === total - 1) {
-    nextBtn.textContent = '回到列表 ↩';
-    nextBtn.disabled = false;
-  } else {
-    nextBtn.textContent = '下一張 →';
-    nextBtn.disabled = false;
-  }
+  nextBtn.textContent = currentCardIndex === total - 1 ? '回到列表 ↩' : '下一張 →';
+  nextBtn.disabled = false;
 }
 
 function flipCard() {
   isFlipped = !isFlipped;
-  document.getElementById('card-stack').classList.toggle('flipped', isFlipped);
+  document.getElementById('card-scene').classList.toggle('flipped', isFlipped);
 }
 
 function prevCard() {
