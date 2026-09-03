@@ -165,63 +165,49 @@
   .progress-track{ height:4px; border-radius:2px; background:var(--surface-3); overflow:hidden; margin-bottom:20px; }
   .progress-fill{ height:100%; background:var(--c); border-radius:2px; transition:width .25s ease; }
 
-  .card-scene{ perspective:1400px; margin-bottom:16px; }
-  .card-flip{
-    position:relative; width:100%; height:320px;
-    transform-style:preserve-3d;
-    transition:transform .5s cubic-bezier(.4,0,.2,1);
-    cursor:pointer;
-  }
-  .card-scene.flipped .card-flip{ transform:rotateY(180deg); }
-  @media (max-width:480px){ .card-flip{ height:360px; } }
-  @media (prefers-reduced-motion:reduce){ .card-flip{ transition:none; } }
-
-  .card-face{
-    position:absolute; inset:0;
-    border-radius:18px;
-    backface-visibility:hidden;
-    -webkit-backface-visibility:hidden;
-    padding:24px 26px;
-    box-shadow:var(--shadow);
-    display:flex; flex-direction:column;
-  }
-  .card-front{ background:var(--c); color:var(--on-accent); justify-content:space-between; }
-  .card-front-top{ display:flex; align-items:center; justify-content:space-between; }
-  .card-front-tag{
-    font-size:.66rem; letter-spacing:.14em; font-weight:600;
-    border:1px solid var(--on-accent-soft); border-radius:999px; padding:4px 10px;
-  }
-  .card-front-hint{ font-size:.7rem; color:var(--on-accent-soft); }
-  .card-front-word{
-    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
-    font-size:clamp(1.7rem,7vw,2.5rem);
-    font-weight:700; line-height:1.15;
-  }
-  .card-front-pos{ font-size:.8rem; color:var(--on-accent-soft); margin-bottom:6px; }
-  .card-front-bottom{ font-size:.85rem; color:var(--on-accent-soft); }
-
-  .card-back{
+  .card-scene{ margin-bottom:16px; }
+  .card-single{
     background:var(--surface);
     border:1px solid var(--line);
-    transform:rotateY(180deg);
-    overflow-y:auto;
-    gap:12px;
+    border-radius:18px;
+    box-shadow:var(--shadow);
+    padding:24px 26px;
+    display:flex; flex-direction:column; gap:14px;
   }
-  .card-back-toprow{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
-  .card-back-word{ font-size:.76rem; font-weight:700; letter-spacing:.1em; color:var(--c); }
-  .card-back-pos{ font-size:.76rem; color:var(--ink-faint); }
-  .card-back-zh{ font-size:1.4rem; font-weight:700; }
-  .card-back-block{ display:flex; flex-direction:column; gap:4px; }
-  .card-back-label{
+  .card-tag{
+    align-self:flex-start;
+    font-size:.66rem; letter-spacing:.14em; font-weight:600;
+    border:1px solid var(--line-strong); color:var(--ink-faint);
+    border-radius:999px; padding:4px 10px;
+  }
+  .card-pos{ font-size:.8rem; color:var(--ink-faint); }
+  .card-word-line{ display:flex; align-items:center; gap:10px; }
+  .card-english{
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-size:clamp(1.7rem,7vw,2.3rem);
+    font-weight:700; line-height:1.15; color:var(--c);
+  }
+  .speaker-btn{
+    flex-shrink:0; width:40px; height:40px; border-radius:50%;
+    border:1px solid var(--line-strong); background:var(--surface-2); color:var(--c);
+    font-size:1.05rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background .15s, border-color .15s, color .15s;
+  }
+  .speaker-btn:hover{ background:var(--c); color:var(--on-accent); border-color:transparent; }
+  .speaker-btn:disabled{ opacity:.5; cursor:default; }
+  .card-chinese{ font-size:1.4rem; font-weight:700; color:var(--ink); }
+
+  .card-block{ display:flex; flex-direction:column; gap:4px; }
+  .card-label{
     font-size:.64rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint);
   }
-  .card-back-text{ font-size:.86rem; color:var(--ink-soft); line-height:1.6; }
-  .card-back-example{
+  .card-text{ font-size:.86rem; color:var(--ink-soft); line-height:1.6; }
+  .card-example{
     background:var(--surface-2); border-radius:10px; padding:12px 14px;
     font-size:.86rem; color:var(--ink); line-height:1.6;
     border-left:2px solid var(--c);
   }
-  .card-back-example-trans{ font-size:.8rem; color:var(--ink-soft); margin-top:6px; line-height:1.55; }
+  .card-example-trans{ font-size:.8rem; color:var(--ink-soft); margin-top:6px; line-height:1.55; }
   .tags{ display:flex; flex-wrap:wrap; gap:6px; }
   .tag{
     background:color-mix(in srgb, var(--c) 14%, var(--surface));
@@ -236,16 +222,6 @@
   }
   .nav-btn:hover:not(:disabled){ border-color:var(--c); color:var(--ink); }
   .nav-btn:disabled{ opacity:.35; cursor:not-allowed; }
-  .flip-btn{ flex:1.3; background:var(--c); color:var(--on-accent); border-color:transparent; }
-  .flip-btn:hover{ opacity:.92; color:var(--on-accent); }
-
-  .listen-btn{
-    width:100%; padding:12px; border-radius:10px; border:1px dashed var(--line-strong);
-    background:transparent; color:var(--ink-soft); font-size:.85rem; font-weight:600; cursor:pointer;
-    margin-bottom:14px;
-  }
-  .listen-btn:hover{ border-color:var(--c); color:var(--c); }
-  .listen-btn:disabled{ opacity:.5; cursor:default; }
 </style>
 </head>
 <body>
@@ -279,59 +255,47 @@
     </div>
     <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
 
-    <div class="card-scene" id="card-scene" onclick="flipCard()">
-      <div class="card-flip" id="card-flip">
-        <div class="card-face card-front">
-          <div class="card-front-top">
-            <span class="card-front-tag mono" id="card-tag"></span>
-            <span class="card-front-hint">點擊翻面</span>
+    <div class="card-scene" id="card-scene">
+      <div class="card-single">
+        <span class="card-tag mono" id="card-tag"></span>
+
+        <div>
+          <div class="card-pos" id="card-pos"></div>
+          <div class="card-word-line">
+            <span class="card-english" id="card-english"></span>
+            <button class="speaker-btn" id="listen-btn" onclick="playPronunciation()" aria-label="聽發音">🔊</button>
           </div>
-          <div>
-            <div class="card-front-pos" id="card-pos"></div>
-            <div class="card-front-word" id="card-english"></div>
-          </div>
-          <div class="card-front-bottom" id="card-zh-hint"></div>
+        </div>
+        <span class="card-chinese" id="card-chinese"></span>
+
+        <div class="card-block" id="usage-wrap">
+          <span class="card-label">使用時機</span>
+          <p class="card-text" id="card-usage"></p>
         </div>
 
-        <div class="card-face card-back">
-          <div class="card-back-toprow">
-            <span class="card-back-word mono" id="back-english"></span>
-            <span class="card-back-pos" id="back-pos"></span>
-          </div>
-          <span class="card-back-zh" id="back-chinese"></span>
+        <div class="card-block" id="example-wrap">
+          <span class="card-label">例句</span>
+          <p class="card-example" id="card-example"></p>
+          <p class="card-example-trans" id="card-example-trans"></p>
+        </div>
 
-          <div class="card-back-block" id="back-usage-wrap">
-            <span class="card-back-label">使用時機</span>
-            <p class="card-back-text" id="back-usage"></p>
-          </div>
+        <div class="card-block" id="related-wrap">
+          <span class="card-label">相關詞</span>
+          <div class="tags" id="card-related"></div>
+        </div>
 
-          <div class="card-back-block" id="back-example-wrap">
-            <span class="card-back-label">例句</span>
-            <p class="card-back-example" id="back-example"></p>
-            <p class="card-back-example-trans" id="back-example-trans"></p>
-          </div>
-
-          <div class="card-back-block" id="back-related-wrap">
-            <span class="card-back-label">相關詞</span>
-            <div class="tags" id="back-related"></div>
-          </div>
-
-          <div class="card-back-block" id="back-collocations-wrap">
-            <span class="card-back-label">常見搭配</span>
-            <div class="tags" id="back-collocations"></div>
-          </div>
+        <div class="card-block" id="collocations-wrap">
+          <span class="card-label">常見搭配</span>
+          <div class="tags" id="card-collocations"></div>
         </div>
       </div>
     </div>
+    <audio id="pronounce-audio"></audio>
 
     <div class="nav-row">
       <button class="nav-btn" id="prev-btn" onclick="prevCard()">← 上一張</button>
-      <button class="nav-btn flip-btn" onclick="flipCard()">翻面</button>
       <button class="nav-btn" id="next-btn" onclick="nextCard()">下一張 →</button>
     </div>
-
-    <button class="listen-btn" id="listen-btn" onclick="playPronunciation()">🔊 聽發音</button>
-    <audio id="pronounce-audio"></audio>
   </div>
 </div>
 
@@ -4355,7 +4319,6 @@ const UNITS = [
 
 let currentUnitIndex = 0;
 let currentCardIndex = 0;
-let isFlipped = false;
 
 // ── 發音：優先播放真人發音音檔，查無素材則退回瀏覽器語音合成 ──
 function speakFallback(text) {
@@ -4469,48 +4432,41 @@ function renderCard() {
   const acc = (currentUnitIndex % 9) + 1;
 
   document.getElementById('card-scene').className = `card-scene acc-${acc}`;
-  isFlipped = false;
 
-  // 正面
   document.getElementById('card-tag').textContent = `VOCAB · ${String(currentCardIndex + 1).padStart(2, '0')}`;
   document.getElementById('card-pos').textContent = word.part_of_speech ? `(${word.part_of_speech})` : '';
   document.getElementById('card-english').textContent = word.english;
-  document.getElementById('card-zh-hint').textContent = word.chinese || '';
+  document.getElementById('card-chinese').textContent = word.chinese || '';
 
-  // 背面
-  document.getElementById('back-english').textContent = word.english.toUpperCase();
-  document.getElementById('back-pos').textContent = word.part_of_speech ? `（${word.part_of_speech}）` : '';
-  document.getElementById('back-chinese').textContent = word.chinese;
-
-  const usageWrap = document.getElementById('back-usage-wrap');
+  const usageWrap = document.getElementById('usage-wrap');
   if (word.usage_context) {
-    document.getElementById('back-usage').textContent = word.usage_context;
+    document.getElementById('card-usage').textContent = word.usage_context;
     usageWrap.style.display = 'flex';
   } else {
     usageWrap.style.display = 'none';
   }
 
-  const exWrap = document.getElementById('back-example-wrap');
+  const exWrap = document.getElementById('example-wrap');
   if (word.example_sentence) {
-    document.getElementById('back-example').textContent = word.example_sentence;
-    document.getElementById('back-example-trans').textContent = word.example_translation || '';
+    document.getElementById('card-example').textContent = word.example_sentence;
+    document.getElementById('card-example-trans').textContent = word.example_translation || '';
     exWrap.style.display = 'flex';
   } else {
     exWrap.style.display = 'none';
   }
 
-  const relatedWrap = document.getElementById('back-related-wrap');
+  const relatedWrap = document.getElementById('related-wrap');
   if (word.related_words && word.related_words.length > 0) {
-    document.getElementById('back-related').innerHTML =
+    document.getElementById('card-related').innerHTML =
       word.related_words.map(w => `<span class="tag">${w}</span>`).join('');
     relatedWrap.style.display = 'flex';
   } else {
     relatedWrap.style.display = 'none';
   }
 
-  const collocationsWrap = document.getElementById('back-collocations-wrap');
+  const collocationsWrap = document.getElementById('collocations-wrap');
   if (word.collocations && word.collocations.length > 0) {
-    document.getElementById('back-collocations').innerHTML =
+    document.getElementById('card-collocations').innerHTML =
       word.collocations.map(c => `<span class="tag">${c}</span>`).join('');
     collocationsWrap.style.display = 'flex';
   } else {
@@ -4524,11 +4480,6 @@ function renderCard() {
   const nextBtn = document.getElementById('next-btn');
   nextBtn.textContent = currentCardIndex === total - 1 ? '回到列表 ↩' : '下一張 →';
   nextBtn.disabled = false;
-}
-
-function flipCard() {
-  isFlipped = !isFlipped;
-  document.getElementById('card-scene').classList.toggle('flipped', isFlipped);
 }
 
 function prevCard() {
@@ -4553,7 +4504,6 @@ document.addEventListener('keydown', e => {
   if (document.getElementById('flashcard-view').style.display !== 'block') return;
   if (e.key === 'ArrowLeft') prevCard();
   else if (e.key === 'ArrowRight') nextCard();
-  else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
 });
 
 renderUnitList();
