@@ -72,6 +72,15 @@
   .app-bar-title{ font-size:1.05rem; font-weight:700; letter-spacing:.02em; }
   .app-bar-sub{ font-size:.78rem; color:var(--ink-faint); margin-top:2px; }
 
+  .update-banner{
+    background:color-mix(in srgb, var(--accent) 14%, var(--surface-2));
+    border-bottom:1px solid var(--line);
+    padding:10px clamp(18px,4vw,30px);
+    font-size:.82rem;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+
   .screen{
     max-width:920px;
     margin:0 auto;
@@ -235,6 +244,8 @@
   <div class="app-bar-title">英語韌性課</div>
   <div class="app-bar-sub">單字通關</div>
 </div>
+
+<div class="update-banner">9/5更新：除了少數幾個單字非英語發音，大部分單字和例句皆可點擊🔊聽發音。會盡快補齊。</div>
 
 <!-- 1. 單元列表 -->
 <div class="screen" id="unit-list">
